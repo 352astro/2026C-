@@ -165,19 +165,83 @@ def predict_votes_for_round(model_result, alive_indices, vote_params=None):
     
     return votes_alive
 
-def simulate_round_by_round_elimination(model_result, vote_params=None):
+def load_season_data_from_c_data(season=1):
+    """
+    从2026_MCM_Problem_C_Data.csv加载指定季节的数据
+    
+    参数:
+    - season: 季节编号
+    
+    返回:
+    - DataFrame，包含该季节的所有数据
+    """
+    data = pd.read_csv('../2026_MCM_Problem_C_Data.csv')
+    season_data = data[data['season'] == season].copy()
+    return season_data
+
+def calculate_judge_score_percentage(season_data, week, alive_indices):
+    """
+    计算指定周存活选手的评委分数百分比
+    
+    参数:
+    - season_data: 季节数据DataFrame
+    - week: 周数（1-11）
+    - alive_indices: 存活选手的索引列表（在season_data中的位置）
+    
+    返回:
+    - 评委分数百分比数组（对应alive_indices的顺序）
+    """
+    # 获取该周所有评委的分数列
+    judge_cols = [f'week{week}_judge{j}_score' for j in range(1, 5)]
+    
+    # 计算每个选手该周的平均分（忽略N/A和0）
+    scores = []
+    for idx in alive_indices:
+        row = season_data.iloc[idx]
+        week_scores = []
+        for col in judge_cols:
+            if col in season_data.columns:
+                score = row[col]
+                if pd.notna(score) and score != 0 and score != 'N/A':
+                    try:
+                        week_scores.append(float(score))
+                    except:
+                        pass
+        if len(week_scores) > 0:
+            avg_score = np.mean(week_scores)
+        else:
+            avg_score = 0.0
+        scores.append(avg_score)
+    
+    scores = np.array(scores)
+    
+    # 计算百分比（该选手分数 / 所有存活选手分数总和）
+    total_score = scores.sum()
+    if total_score > 0:
+        percentages = scores / total_score
+    else:
+        percentages = np.ones(len(scores)) / len(scores)
+    
+    return percentages
+
+def simulate_round_by_round_elimination(model_result, vote_params=None, season_data=None, current_week=1):
     """
     模拟逐轮淘汰过程（综艺场景还原）
     
-    按照work.md的要求：
+    按照work.md的要求，加上新规则：
     1. 一个季度会进行多次比赛
-    2. 每次比赛：模型预测当前存活选手的投票数据
-    3. 淘汰投票数最低的选手
+    2. 每次比赛：
+       - 计算当前周存活选手的评委分数百分比
+       - 模型预测当前存活选手的投票数，计算票数百分比
+       - 两个百分比相加作为排名依据
+    3. 淘汰排名最低的选手
     4. 重复直到只剩一人
     
     参数:
     - model_result: train_model返回的模型结果
     - vote_params: 投票数映射参数 (a, b)，如果为None则使用默认值
+    - season_data: 季节数据DataFrame（包含评委分数）
+    - current_week: 当前周数（从1开始）
     
     返回:
     - 预测的淘汰顺序（列表）
@@ -188,34 +252,56 @@ def simulate_round_by_round_elimination(model_result, vote_params=None):
     n_players = model_result['n_players']
     alive_indices = list(range(n_players))
     predicted_elim_order = []
+    week = current_week
     
     # 进行多次比赛，直到只剩一人
     while len(alive_indices) > 1:
-        # 预测当前轮次存活选手的投票数
+        # 1. 计算评委分数百分比
+        if season_data is not None:
+            judge_percentages = calculate_judge_score_percentage(season_data, week, alive_indices)
+        else:
+            # 如果没有提供season_data，使用均匀分布
+            judge_percentages = np.ones(len(alive_indices)) / len(alive_indices)
+        
+        # 2. 预测当前轮次存活选手的投票数
         votes_alive = predict_votes_for_round(model_result, alive_indices, vote_params)
         
         if votes_alive is None:
             break
         
-        # 找到投票数最低的选手（本轮被淘汰）
-        min_vote_idx = np.argmin(votes_alive)
-        eliminated_idx = alive_indices[min_vote_idx]
+        # 3. 计算票数百分比
+        total_votes = votes_alive.sum()
+        if total_votes > 0:
+            vote_percentages = votes_alive / total_votes
+        else:
+            vote_percentages = np.ones(len(votes_alive)) / len(votes_alive)
+        
+        # 4. 两个百分比相加作为排名依据
+        combined_scores = judge_percentages + vote_percentages
+        
+        # 5. 找到排名最低的选手（本轮被淘汰）
+        min_score_idx = np.argmin(combined_scores)
+        eliminated_idx = alive_indices[min_score_idx]
         
         # 记录淘汰顺序
         predicted_elim_order.append(eliminated_idx)
         
         # 从存活列表中移除被淘汰的选手
         alive_indices.remove(eliminated_idx)
+        
+        # 进入下一周
+        week += 1
     
     return predicted_elim_order
 
-def evaluate_model_consistency(model_result, vote_params=None):
+def evaluate_model_consistency(model_result, vote_params=None, season_data=None):
     """
     评估模型的一致性：使用逐轮淘汰模拟，计算Kendall's tau
     
     参数:
     - model_result: train_model返回的模型结果
     - vote_params: 投票数映射参数 (a, b)，如果为None则使用默认值
+    - season_data: 季节数据DataFrame（包含评委分数）
     
     返回:
     - 字典，包含：
@@ -231,7 +317,7 @@ def evaluate_model_consistency(model_result, vote_params=None):
     elimination_order = model_result['elimination_order']
     
     # 模拟逐轮淘汰过程
-    predicted_elim_order = simulate_round_by_round_elimination(model_result, vote_params)
+    predicted_elim_order = simulate_round_by_round_elimination(model_result, vote_params, season_data, current_week=1)
     
     if predicted_elim_order is None or len(predicted_elim_order) != len(elimination_order):
         return {
@@ -269,81 +355,169 @@ def evaluate_model_consistency(model_result, vote_params=None):
         'elimination_order_match': (predicted_elim_order == elimination_order)
     }
 
+def evaluate_season1_consistency():
+    """
+    专门针对season1的一致性分析
+    
+    使用2026_MCM_Problem_C_Data.csv中的评委分数数据
+    结合模型预测的票数，进行逐轮淘汰模拟
+    """
+    print("="*60)
+    print("Season 1 一致性分析")
+    print("="*60)
+    
+    # 加载数据
+    fame_data = pd.read_csv('../2026_MCM_Problem_Fame_Data.csv')
+    wiki_data = pd.read_csv('../celebrity_wikipedia_stats.csv')
+    c_data = load_season_data_from_c_data(season=1)
+    
+    print(f"\n加载数据完成:")
+    print(f"  Season 1 选手数量: {len(c_data)}")
+    
+    # 训练模型
+    print(f"\n训练模型...")
+    model_result = train_model(fame_data, wiki_data, season=1)
+    
+    if model_result is None:
+        print("模型训练失败！")
+        return None
+    
+    print(f"模型训练完成")
+    
+    # 评估一致性（使用评委分数数据）
+    print(f"\n进行逐轮淘汰模拟（使用评委分数百分比 + 票数百分比）...")
+    eval_result = evaluate_model_consistency(model_result, season_data=c_data)
+    
+    if eval_result:
+        tau = eval_result['elimination_order_tau']
+        p_value = eval_result['elimination_order_p']
+        match = eval_result['elimination_order_match']
+        pred_order = eval_result['predicted_elim_order']
+        actual_order = model_result['elimination_order']
+        
+        print(f"\n{'='*60}")
+        print("一致性评估结果")
+        print(f"{'='*60}")
+        print(f"Kendall's tau: {tau:.4f}")
+        print(f"p值: {p_value:.4f}")
+        print(f"完全匹配: {match}")
+        print(f"\n预测淘汰顺序: {pred_order}")
+        print(f"实际淘汰顺序: {actual_order}")
+        
+        # 显示选手名称
+        if model_result['player_names'] is not None:
+            print(f"\n预测淘汰顺序（选手名称）:")
+            for i, idx in enumerate(pred_order):
+                name = model_result['player_names'][idx] if idx < len(model_result['player_names']) else f"Player {idx}"
+                print(f"  第{i+1}名被淘汰: {name}")
+            
+            print(f"\n实际淘汰顺序（选手名称）:")
+            for i, idx in enumerate(actual_order):
+                name = model_result['player_names'][idx] if idx < len(model_result['player_names']) else f"Player {idx}"
+                print(f"  第{i+1}名被淘汰: {name}")
+        
+        return eval_result
+    
+    return None
 
 def main():
-    """主函数：对所有季节进行训练和预测"""
+    """主函数：对所有季节进行训练和一致性评估"""
     print("="*60)
     print("加载数据...")
     print("="*60)
     
     fame_data = pd.read_csv('../2026_MCM_Problem_Fame_Data.csv')
     wiki_data = pd.read_csv('../celebrity_wikipedia_stats.csv')
+    c_data_all = pd.read_csv('../2026_MCM_Problem_C_Data.csv')
     
     print(f"特征数据: {len(fame_data)} 行")
     print(f"Wiki数据: {len(wiki_data)} 行")
+    print(f"C数据: {len(c_data_all)} 行")
     
     seasons = sorted(wiki_data['season'].unique())
     print(f"\n找到 {len(seasons)} 个季节: {seasons}")
     
     all_results = []
+    consistency_metrics = []
     
     for season in seasons:
         try:
-            # 只训练模型，获取模型参数（不输出结果，不进行评估）
+            print(f"\n{'='*60}")
+            print(f"处理 Season {season}")
+            print(f"{'='*60}")
+            
+            # 加载该季节的C数据（评委分数）
+            season_c_data = c_data_all[c_data_all['season'] == season].copy()
+            
+            # 训练模型
             model_result = train_model(fame_data, wiki_data, season)
-            if model_result is not None:
-                all_results.append(model_result)
-        except Exception as e:
-            print(f"\nSeason {season} 处理失败: {str(e)}")
-            continue
-    
-    # 评估所有模型的一致性
-    if len(all_results) > 0:
-        print(f"\n{'='*60}")
-        print("评估模型一致性")
-        print(f"{'='*60}")
-        
-        consistency_metrics = []
-        
-        for model_result in all_results:
-            season = model_result['season']
-            # 评估模型一致性（使用逐轮淘汰模拟）
-            eval_result = evaluate_model_consistency(model_result)
+            if model_result is None:
+                print(f"Season {season} 模型训练失败")
+                continue
+            
+            # 评估一致性（使用评委分数数据）
+            print(f"\n进行逐轮淘汰模拟（使用评委分数百分比 + 票数百分比）...")
+            eval_result = evaluate_model_consistency(model_result, season_data=season_c_data)
             
             if eval_result and 'elimination_order_tau' in eval_result:
                 tau = eval_result['elimination_order_tau']
+                print(f"\nSeason {season} 一致性评估:")
+                print(f"  Kendall's tau: {tau:.4f}")
+                print(f"  p值: {eval_result.get('elimination_order_p', 0):.4f}")
+                print(f"  完全匹配: {eval_result.get('elimination_order_match', False)}")
+                
                 consistency_metrics.append({
                     'season': season,
                     'kendall_tau': tau,
                     'kendall_p': eval_result.get('elimination_order_p'),
                     'elimination_match': eval_result.get('elimination_order_match', False)
                 })
+            
+            all_results.append(model_result)
+            
+        except Exception as e:
+            print(f"\nSeason {season} 处理失败: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            continue
+    
+    # 汇总所有季节的一致性统计
+    if consistency_metrics:
+        print(f"\n{'='*60}")
+        print("总体一致性统计")
+        print(f"{'='*60}")
         
-        # 计算并显示总体一致性统计
-        if consistency_metrics:
-            metrics_df = pd.DataFrame(consistency_metrics)
-            tau_values = metrics_df['kendall_tau'].values
-            
-            tau_mean = np.mean(tau_values)
-            tau_std = np.std(tau_values)
-            tau_median = np.median(tau_values)
-            tau_min = np.min(tau_values)
-            tau_max = np.max(tau_values)
-            positive_tau_count = np.sum(tau_values > 0)
-            negative_tau_count = np.sum(tau_values < 0)
-            perfect_match_count = metrics_df['elimination_match'].sum()
-            
-            print(f"\nKendall's tau (排序一致性):")
-            print(f"  平均值: {tau_mean:.4f} ± {tau_std:.4f}")
-            print(f"  中位数: {tau_median:.4f}")
-            print(f"  范围: [{tau_min:.4f}, {tau_max:.4f}]")
-            print(f"  正相关季节数: {positive_tau_count}/{len(tau_values)} ({100*positive_tau_count/len(tau_values):.1f}%)")
-            print(f"  负相关季节数: {negative_tau_count}/{len(tau_values)} ({100*negative_tau_count/len(tau_values):.1f}%)")
-            print(f"  完全匹配季节数: {perfect_match_count}/{len(tau_values)} ({100*perfect_match_count/len(tau_values):.1f}%)")
+        metrics_df = pd.DataFrame(consistency_metrics)
+        tau_values = metrics_df['kendall_tau'].values
+        
+        tau_mean = np.mean(tau_values)
+        tau_std = np.std(tau_values)
+        tau_median = np.median(tau_values)
+        tau_min = np.min(tau_values)
+        tau_max = np.max(tau_values)
+        positive_tau_count = np.sum(tau_values > 0)
+        negative_tau_count = np.sum(tau_values < 0)
+        perfect_match_count = metrics_df['elimination_match'].sum()
+        
+        print(f"\nKendall's tau (排序一致性):")
+        print(f"  平均值: {tau_mean:.4f} ± {tau_std:.4f}")
+        print(f"  中位数: {tau_median:.4f}")
+        print(f"  范围: [{tau_min:.4f}, {tau_max:.4f}]")
+        print(f"  正相关季节数: {positive_tau_count}/{len(tau_values)} ({100*positive_tau_count/len(tau_values):.1f}%)")
+        print(f"  负相关季节数: {negative_tau_count}/{len(tau_values)} ({100*negative_tau_count/len(tau_values):.1f}%)")
+        print(f"  完全匹配季节数: {perfect_match_count}/{len(tau_values)} ({100*perfect_match_count/len(tau_values):.1f}%)")
+        
+        # 保存结果
+        metrics_df.to_csv('consistency_metrics_all_seasons.csv', index=False)
+        print(f"\n一致性指标已保存到: consistency_metrics_all_seasons.csv")
     
     print(f"\n{'='*60}")
     print("完成！")
     print(f"{'='*60}")
 
 if __name__ == "__main__":
+    # 运行完整训练和评估（所有季节）
     main()
+    
+    # 或者只运行season1的一致性分析
+    # evaluate_season1_consistency()
