@@ -5,8 +5,9 @@ from sklearn.preprocessing import StandardScaler
 df_fame = pd.read_csv('2026_MCM_Problem_Fame_Data.csv')
 df_raw = pd.read_csv('2026_MCM_Problem_C_Data.csv')
 
-# 将赛季信息合并到特征表中
+# 将赛季和排名信息合并到特征表中
 df_fame['season'] = df_raw['season']
+df_fame['placement'] = df_raw['placement']
 
 # 对年龄进行标准化
 scaler = StandardScaler()
@@ -17,7 +18,8 @@ industry_cols = [c for c in df_fame.columns if 'industry_' in c]
 
 # 对fame进行对数处理
 selected_fame = 'fame_1.2'
-df_fame['log_fame'] = np.log1p(df_fame[selected_fame])
+# df_fame['log_fame'] = np.log1p(df_fame[selected_fame])
+df_fame['log_fame'] = df_fame[selected_fame]
 
 # 汇总所有静态特征 X_i
 static_feature_cols = ['log_fame', 'age_scaled'] + industry_cols
@@ -27,7 +29,7 @@ week_cols = [str(i) for i in range(1, 12)]
 
 # 转为长表
 df_long = pd.melt(df_fame,
-                  id_vars=['index','season'] + static_feature_cols,
+                  id_vars=['index','season','placement'] + static_feature_cols,
                   value_vars=week_cols,
                   var_name='week',
                   value_name='Judge_Share')
@@ -55,11 +57,11 @@ df_long = df_long.merge(max_week_per_season, on='season')
 
 # 判定：如果选手的最后一周 < 该赛季的决赛周，则认为他在那周被淘汰了
 df_long['is_eliminated'] = (
-    (df_long['week'] == df_long['last_week_appearance']) &
-    (df_long['week'] < df_long['season_final_week'])
+    ((df_long['week'] == df_long['last_week_appearance']) & (df_long['week'] < df_long['season_final_week'])) |
+    ((df_long['week'] == df_long['season_final_week']) & (df_long['placement'] > 1))
 ).astype(int)
 
-final_cols = ['index', 'season', 'week', 'Judge_Share', 'Has_Previous_Week', 'is_eliminated'] + static_feature_cols
+final_cols = ['index', 'season', 'week', 'placement', 'Judge_Share', 'Has_Previous_Week', 'is_eliminated'] + static_feature_cols
 processed_data = df_long[final_cols].sort_values(by=['season', 'week', 'index'])
 
 
