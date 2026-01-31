@@ -30,21 +30,34 @@ def get_mu_sigma(X, params, n_feats):
 def objective_function(params, pools, n_feats):
     phi = params[-1]
     total_loss = 0
+    num_samples = 10  # 蒙特卡洛采样次数
     for pool in pools:
         X, J, targets, weeks = pool['X'], pool['J'], pool['targets'], pool['week']
-        mu, _ = get_mu_sigma(X, params, n_feats)
-        v_latent = mu + phi * weeks
-        V = softmax(v_latent)
-        total_score = V + J
+        mu, sigma = get_mu_sigma(X, params, n_feats)
+        pool_loss = 0
+        for _ in range(num_samples):
+            # 1. 注入随机噪声项 (Reparameterization Trick)
+            epsilon = np.random.normal(0, 1, size=len(mu))
+            u_sampled = mu + phi * weeks + sigma * epsilon
+            # 2. 转化为百分比 V
+            V = softmax(u_sampled)
+            # 3. 计算排序损失
+            total_score = V + J
+            current_sample_loss = 0
 
-        if targets.sum() > 0:
-            # 考虑多个淘汰者（决赛情况）
-            elim_scores = total_score[targets == 1]
-            surv_scores = total_score[targets == 0]
-            if len(surv_scores) > 0:
-                for e_s in elim_scores:
-                    diff = e_s - surv_scores
-                    total_loss += np.log1p(np.exp(100 * diff)).mean()
+            if targets.sum() > 0:
+                elim_scores = total_score[targets == 1]  # 淘汰者得分（可能有多个，如亚军、季军）
+                surv_scores = total_score[targets == 0]  # 晋级者得分（通常是冠军）
+
+                if len(surv_scores) > 0:
+                    # 对每一个淘汰者，都要比晋级者分数低
+                    for e_s in elim_scores:
+                        diff = e_s - surv_scores
+                        # 累加当前样本的损失
+                        current_sample_loss += np.log1p(np.exp(100 * diff)).mean()
+            pool_loss += current_sample_loss
+
+        total_loss += pool_loss / num_samples # 取采样平均值作为期望损失
     return total_loss
 
 
