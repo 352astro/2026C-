@@ -1,93 +1,168 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from scipy.optimize import minimize
+from scipy.stats import kendalltau, rankdata
+from sklearn.model_selection import KFold
 
-data = pd.read_csv('2026_MCM_Problem_Fame_Data.csv')
-# 原始经过1.2次方处理得到的人气值
-pop_raw = data['fame_1.1'].values
-# 各名人的年龄数据
-age_raw = data['celebrity_age_during_season'].values
-# 评委分周平均分在所有存活周上的分数总和
-X_judge = data['score_sum'].values
-# 真实淘汰次序
-eta_true = data['elimination_order'].values
-# 行业独热编码
-ind_cols = [c for c in data.columns if 'industry_' in c]
-Ind = data[ind_cols].values
+# ==========================================
+# 1. 数据准备
+# ==========================================
+df_fame = pd.read_csv('2026_MCM_Problem_Fame_Data.csv')
+df_season_map = pd.read_csv('2026_MCM_Problem_ARIMA_Data_SeasonAware.csv')
 
-# 标准化：确保优化的稳定性
-def scale(x): return (x - x.mean()) / (x.std() + 1e-6)
-pop = scale(pop_raw)
-age = scale(age_raw)
-X_judge = scale(X_judge)
+# 映射赛季信息
+season_mapping = df_season_map.groupby('index')['season'].first().to_dict()
+df_fame['season'] = df_fame['index'].map(season_mapping)
+df_train_all = df_fame[df_fame['season'].between(3, 27)].copy()
 
-# 合并特征矩阵 [人气, 年龄, 行业1...N]
-Features = np.column_stack([pop, age, Ind])
-num_f = Features.shape[1]
+df_train_all.to_csv('2026_MCM_Problem_Train_Data')
 
+def preprocess_features(df):
+    """特征提取与标准化"""
+    # 注意：这里我们保留 season 列用于后续的分组排名
+    pop_raw = df['fame_1.1'].values
+    age_raw = df['celebrity_age_during_season'].values
+    X_judge_raw = df['score_sum'].values
+    
+    def scale(x): return (x - x.mean()) / (x.std() + 1e-6)
+    
+    X_j = scale(X_judge_raw)
+    pop = scale(pop_raw)
+    age = scale(age_raw)
+    
+    ind_cols = [c for c in df.columns if 'industry_' in c]
+    Ind = df[ind_cols].values
+    
+    X_feats = np.column_stack([pop, age, Ind])
+    y_true = df['elimination_order'].values
+    y_scaled = scale(y_true)
+    return X_feats, X_j, y_scaled, df['season'].values
 
+# ==========================================
+# 2. 模型核心函数
+# ==========================================
+def get_mu_sigma(X, params, n_f):
+    w_mu = params[:n_f]
+    b_mu = params[n_f]
+    w_sig = params[n_f+1 : 2*n_f+1]
+    b_sig = params[2*n_f+1]
+    
+    mu = np.dot(X, w_mu) + b_mu
+    y2 = np.dot(X, w_sig) + b_sig
+    sigma = np.log1p(np.exp(np.clip(y2, -20, 20))) + 1e-4
+    return mu, sigma
 
-#目标函数
-def end_to_end_loss(params, Features, X_judge, eta_true):
-    # 拆分参数
-    # params_y1: 均值权重 (num_f + 1)
-    # params_y2: 方差权重 (num_f + 1)
-    # params_final: [w_judge, w_audience] (2)
-    idx1 = num_f + 1
-    idx2 = 2 * (num_f + 1)
+def objective_function(params, X, X_j, y_true, n_f):
+    # 现在 params 的最后只剩一个 w_judge
+    w_judge = params[-1] 
+    
+    # 获取 mu 和 sigma (内部已包含所有特征权重)
+    # params 分配: w_mu(n_f), b_mu(1), w_sig(n_f), b_sig(1), w_judge(1)
+    mu, sigma = get_mu_sigma(X, params[:-1], n_f) 
+    
+    # 预测逻辑：评委分权重 + 观众综合实力(mu)
+    # mu 已经包含了特征的原始缩放
+    y_pred_mean = w_judge * X_j + mu
+    
+    # 此时 combined_std 直接由 sigma 调控
+    combined_std = sigma + 1e-4
+    
+    nll = np.sum(np.log(combined_std) + 0.5 * ((y_true - y_pred_mean) / combined_std)**2)
+    
+    # 正则化保持不变
+    l2_reg = 0.1 * (np.sum(params[:n_f]**2) + np.sum(params[n_f+1:2*n_f+1]**2))
+    return nll + l2_reg
 
-    p_y1 = params[:idx1]
-    p_y2 = params[idx1:idx2]
-    w_final = params[idx2:]  # [w1, w2]
+# ==========================================
+# 3. 严格排名评估函数 (核心改进)
+# ==========================================
+def evaluate_exact_accuracy(y_pred, y_true, seasons):
+    """
+    按赛季对预测值进行重排名，计算与真实排名完全一致的百分比
+    """
+    results = pd.DataFrame({
+        'pred': y_pred,
+        'true': y_true,
+        'season': seasons
+    })
+    
+    correct_count = 0
+    total_count = len(y_true)
+    
+    for s_id, group in results.groupby('season'):
+        # 将预测分值转为排名 (1, 2, 3...)
+        # rankdata 处理同分情况采用平均秩，但在浮点数预测中极少发生
+        pred_ranks = rankdata(group['pred'])
+        true_ranks = rankdata(group['true'])
+        
+        # 统计完全相等的个数
+        correct_count += np.sum(pred_ranks == true_ranks)
+        
+    return correct_count / total_count
 
-    # 计算 mu (y1)
-    mu = np.dot(Features, p_y1[:-1]) + p_y1[-1]
+# ==========================================
+# 4. K折交叉验证逻辑
+# ==========================================
+def run_kfold_ranking_validation(df, k=5):
+    seasons = sorted(df['season'].unique())
+    kf = KFold(n_splits=k, shuffle=True, random_state=42)
+    
+    all_metrics = []
+    
+    for fold, (train_idx, val_idx) in enumerate(kf.split(seasons)):
+        tr_s = [seasons[i] for i in train_idx]
+        val_s = [seasons[i] for i in val_idx]
+        
+        df_tr = df[df['season'].isin(tr_s)]
+        df_val = df[df['season'].isin(val_s)]
+        
+        X_tr, J_tr, y_tr, _ = preprocess_features(df_tr)
+        X_val, J_val, y_val, s_val = preprocess_features(df_val)
+        
+        n_f = X_tr.shape[1]
+        # 初始值改为小随机数，避免落入鞍点
+        init_params = np.random.normal(0, 0.05, 2*(n_f+1) + 1)
+        init_params[-1] = 1.0
+        
+        res = minimize(objective_function, init_params, args=(X_tr, J_tr, y_tr, n_f),
+                       method='L-BFGS-B', options={'maxiter': 500})
+        
+        # 预测并评估
+        mu_v, _ = get_mu_sigma(X_val, res.x, n_f)
+        w_j_v = res.x[-1]
+        y_pred_val = w_j_v * J_val + mu_v
+        
+        # 计算严格排名准确率
+        exact_acc = evaluate_exact_accuracy(y_pred_val, y_val, s_val)
+        # 计算排序一致性
+        tau, _ = kendalltau(y_pred_val, y_val)
+        
+        all_metrics.append([exact_acc, tau])
+        print(f"Fold {fold+1}: 严格准确率={exact_acc:.2%}, Kendall's Tau={tau:.4f}")
+        
+    return np.mean(all_metrics, axis=0), res.x
 
-    # 计算 sigma (y2 -> softplus)
-    y2 = np.dot(Features, p_y2[:-1]) + p_y2[-1]
-    # sigma = np.log1p(np.exp(np.clip(y2, -20, 20)))
-    sigma = np.log(1+np.exp(-y2))
+# ==========================================
+# 5. 执行与结果
+# ==========================================
+print("正在执行严格排名对齐验证 (Season 3-27)...")
+avg_results, final_params_raw = run_kfold_ranking_validation(df_train_all)
 
-    final_mean = w_final[0] * X_judge + w_final[1] * mu
-    final_std = np.abs(w_final[1]) * sigma + 1e-6
+print("\n" + "="*40)
+print(f"平均严格排名准确率 (Exact Match): {avg_results[0]:.2%}")
+print(f"平均排序一致性 (Kendall's Tau): {avg_results[1]:.4f}")
+print("="*40)
 
+# 全量训练与参数解析
+X_f, J_f, y_f, s_f = preprocess_features(df_train_all)
+n_f = X_f.shape[1]
+res_final = minimize(objective_function, final_params_raw, args=(X_f, J_f, y_f, n_f), method='L-BFGS-B')
+W = res_final.x
+n_f = X_f.shape[1]
 
-    # 预测淘汰次序 eta_bar = w1*X + w2*mu
-    # eta_pred = w_final[0] * X_judge + w_final[1] * mu
-    nll = np.sum(np.log(final_std) + (eta_true - final_mean)**2 / (2 * final_std**2))
-
-    # # 计算期望平方误差：(真-预测)^2 + (权重2^2 * sigma^2)
-    # # 后半项考虑了投票数波动对淘汰次序稳定性的影响
-    # mse = np.mean((eta_true - eta_pred) ** 2 + (w_final[1] ** 2 * sigma ** 2))
-
-    # 加入 L2 正则化防止权重过大
-    # return mse + 0.01 * np.sum(params ** 2)
-    return nll + 0.01 * np.sum(params**2)
-
-
-total_params = 2 * (num_features := num_f + 1) + 2
-initial_guess = np.zeros(total_params)
-initial_guess[-2:] = [0.1, 0.1]  # 给最终加权一个初始正值
-
-res = minimize(end_to_end_loss, initial_guess,
-               args=(Features, X_judge, eta_true),
-               method='L-BFGS-B')
-
-# --- 结果解析 ---
-if res.success:
-    final_p = res.x
-    w_mu = final_p[:num_f]
-    w_final = final_p[-2:]
-
-    print("优化结果成功！")
-    print(f"评委分权重 (w1): {w_final[0]:.4f}")
-    print(f"观众分权重 (w2): {w_final[1]:.4f}")
-    print("-" * 30)
-    print("均值层（人气预测）核心贡献：")
-    print(f"人气值(WE^1.2)影响力: {w_mu[0]:.4f}")
-    print(f"年龄影响力: {w_mu[1]:.4f}")
-    # 打印前两个行业作为示例
-    for i in range(2):
-        print(f"行业[{ind_cols[i]}]修正项: {w_mu[2 + i]:.4f}")
+print("\n[最终模型参数解析]")
+print(f"评委分权重: {W[-1]:.4f}")
+print(f"名声特征影响力: {W[0]:.4f}")
+print(f"年龄特征影响力: {W[1]:.4f}")
+# 保存
+np.savez('dwts_ranking_model.npz', params=W)
