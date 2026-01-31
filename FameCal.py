@@ -12,5 +12,5 @@ processed_data['fame_1.2'] = fame['total_edits']**1.2
 processed_data['fame_1.3'] = fame['total_edits']**1.3
 processed_data['fame_1.4'] = fame['total_edits']**1.4
 
-processed_data.to_csv('2026_MCM_Problem_fame_Data.csv', index=False)
+processed_data.to_csv('2026_MCM_Problem_Fame_Data.csv', index=False)
 
