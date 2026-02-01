@@ -24,14 +24,16 @@ for contestant in target_contestants:
     index = contestant['index']
     name = contestant['name']
     
-    # 从elimination_results.csv获取排名方式的淘汰次序
-    rule1_data = elimination_df[(elimination_df['season'] == season) & 
-                                  (elimination_df['index'] == index)]
+    # 从elimination_results.csv获取各种规则的淘汰次序
+    rule_data = elimination_df[(elimination_df['season'] == season) & 
+                                (elimination_df['index'] == index)]
     
-    if len(rule1_data) > 0:
-        rule1_order = rule1_data['淘汰次序_规则1_排名相加'].iloc[0]
+    if len(rule_data) > 0:
+        rule1_order = rule_data['淘汰次序_规则1_排名相加'].iloc[0]
+        rule4_order = rule_data['淘汰次序_规则4_排名倒数两名评委决定'].iloc[0]
     else:
         rule1_order = None
+        rule4_order = None
     
     # 从2026_MCM_Problem_Mean_Data.csv获取实际排名和淘汰次序
     actual_data = actual_df[(actual_df['season'] == season) & 
@@ -49,11 +51,16 @@ for contestant in target_contestants:
     # 计算差异：排名方式预测的淘汰次序 vs 实际淘汰次序
     # 注意：淘汰次序数值越大表示淘汰越晚（排名越好）
     if rule1_order is not None and actual_elimination_order is not None:
-        order_difference = actual_elimination_order - rule1_order
+        order_difference_rule1 = actual_elimination_order - rule1_order
         # 如果差异为正，说明实际表现比排名方式预测的更好
         # 如果差异为负，说明实际表现比排名方式预测的更差
     else:
-        order_difference = None
+        order_difference_rule1 = None
+    
+    if rule4_order is not None and actual_elimination_order is not None:
+        order_difference_rule4 = actual_elimination_order - rule4_order
+    else:
+        order_difference_rule4 = None
     
     results.append({
         'season': season,
@@ -61,9 +68,11 @@ for contestant in target_contestants:
         'celebrity_name': name,
         '描述': contestant['description'],
         '排名方式淘汰次序_规则1': rule1_order,
+        '排名方式淘汰次序_规则4': rule4_order,
         '实际排名_placement': actual_placement,
         '实际淘汰次序_elimination_order': actual_elimination_order,
-        '淘汰次序差异_实际减预测': order_difference,
+        '淘汰次序差异_规则1_实际减预测': order_difference_rule1,
+        '淘汰次序差异_规则4_实际减预测': order_difference_rule4,
         '参赛周数': weeks
     })
 

@@ -1,6 +1,7 @@
 """
-使用Kendall's tau分析三种淘汰规则的一致性
+使用Kendall's tau分析四种淘汰规则的一致性
 比较排名方式和百分比方式哪个更倾向于粉丝投票
+包含规则4：排名倒数两名，评委决定
 """
 
 import pandas as pd
@@ -27,10 +28,11 @@ def calculate_kendall_tau_analysis(results_file: str, output_file: str):
     for season in seasons:
         season_data = df[df['season'] == season].copy()
         
-        # 获取三种规则的淘汰次序
+        # 获取四种规则的淘汰次序
         order_rule1 = season_data['淘汰次序_规则1_排名相加'].values
         order_rule2 = season_data['淘汰次序_规则2_百分比相加'].values
         order_rule3 = season_data['淘汰次序_规则3_只看粉丝投票'].values
+        order_rule4 = season_data['淘汰次序_规则4_排名倒数两名评委决定'].values
         
         # 计算Kendall's tau
         # 规则1 vs 规则3（排名方式 vs 粉丝投票）
@@ -39,61 +41,100 @@ def calculate_kendall_tau_analysis(results_file: str, output_file: str):
         # 规则2 vs 规则3（百分比方式 vs 粉丝投票）
         tau_rule2_vs_rule3, p_value_rule2 = kendalltau(order_rule2, order_rule3)
         
+        # 规则4 vs 规则3（排名倒数两名评委决定 vs 粉丝投票）
+        tau_rule4_vs_rule3, p_value_rule4 = kendalltau(order_rule4, order_rule3)
+        
         # 规则1 vs 规则2（排名方式 vs 百分比方式）
         tau_rule1_vs_rule2, p_value_rule1_rule2 = kendalltau(order_rule1, order_rule2)
         
+        # 规则1 vs 规则4（排名方式 vs 排名倒数两名评委决定）
+        tau_rule1_vs_rule4, p_value_rule1_rule4 = kendalltau(order_rule1, order_rule4)
+        
+        # 规则2 vs 规则4（百分比方式 vs 排名倒数两名评委决定）
+        tau_rule2_vs_rule4, p_value_rule2_rule4 = kendalltau(order_rule2, order_rule4)
+        
         # 判断哪个更倾向于粉丝投票（tau值越大，一致性越高）
-        more_fan_oriented = "规则1_排名相加" if tau_rule1_vs_rule3 > tau_rule2_vs_rule3 else "规则2_百分比相加"
+        # 比较规则1、规则2、规则4与规则3的一致性
+        tau_values = {
+            '规则1_排名相加': tau_rule1_vs_rule3,
+            '规则2_百分比相加': tau_rule2_vs_rule3,
+            '规则4_排名倒数两名评委决定': tau_rule4_vs_rule3
+        }
+        more_fan_oriented = max(tau_values, key=tau_values.get)
         tau_difference = abs(tau_rule1_vs_rule3 - tau_rule2_vs_rule3)
         
         # 计算平均tau值（与粉丝投票的一致性）
-        avg_tau_with_fan = (tau_rule1_vs_rule3 + tau_rule2_vs_rule3) / 2
+        avg_tau_with_fan = (tau_rule1_vs_rule3 + tau_rule2_vs_rule3 + tau_rule4_vs_rule3) / 3
         
         analysis_results.append({
             'season': season,
-            'tau_规则1_vs_规则3_排名vs粉丝': tau_rule1_vs_rule3,
-            'p_value_规则1_vs_规则3': p_value_rule1,
-            'tau_规则2_vs_规则3_百分比vs粉丝': tau_rule2_vs_rule3,
-            'p_value_规则2_vs_规则3': p_value_rule2,
-            'tau_规则1_vs_规则2_排名vs百分比': tau_rule1_vs_rule2,
-            'p_value_规则1_vs_规则2': p_value_rule1_rule2,
-            '更倾向于粉丝投票的规则': more_fan_oriented,
-            'tau差异绝对值': tau_difference,
-            '平均tau_与粉丝投票': avg_tau_with_fan,
-            '选手数量': len(season_data)
+            # 规则1和其他：1-2, 1-3, 1-4
+            'tau_1-2': float(f'{tau_rule1_vs_rule2:.5f}'),
+            'p_1-2': float(f'{p_value_rule1_rule2:.5f}'),
+            'tau_1-3': float(f'{tau_rule1_vs_rule3:.5f}'),
+            'p_1-3': float(f'{p_value_rule1:.5f}'),
+            'tau_1-4': float(f'{tau_rule1_vs_rule4:.5f}'),
+            'p_1-4': float(f'{p_value_rule1_rule4:.5f}'),
+            # 规则2和剩余其他：2-3, 2-4
+            'tau_2-3': float(f'{tau_rule2_vs_rule3:.5f}'),
+            'p_2-3': float(f'{p_value_rule2:.5f}'),
+            'tau_2-4': float(f'{tau_rule2_vs_rule4:.5f}'),
+            'p_2-4': float(f'{p_value_rule2_rule4:.5f}'),
+            # 规则3和其他：3-4 (即4-3，但用3-4表示)
+            'tau_3-4': float(f'{tau_rule4_vs_rule3:.5f}'),
+            'p_3-4': float(f'{p_value_rule4:.5f}'),
+            # 其他统计信息
+            '更倾向粉丝': more_fan_oriented,
+            'tau_diff_1-2': float(f'{tau_difference:.5f}'),
+            'avg_tau_粉丝': float(f'{avg_tau_with_fan:.5f}'),
+            '选手数': len(season_data)
         })
     
     # 创建结果DataFrame
     result_df = pd.DataFrame(analysis_results)
     
-    # 保存到CSV
-    result_df.to_csv(output_file, index=False, encoding='utf-8-sig')
-    
+    # 先计算和打印统计摘要（使用原始数值）
     print(f"分析结果已保存到: {output_file}")
     print(f"共分析 {len(seasons)} 个season")
     print("\n" + "="*80)
     print("统计摘要:")
     print("="*80)
-    print(f"规则1 vs 规则3 (排名相加 vs 只看粉丝投票) 平均tau: {result_df['tau_规则1_vs_规则3_排名vs粉丝'].mean():.4f}")
-    print(f"规则2 vs 规则3 (百分比相加 vs 只看粉丝投票) 平均tau: {result_df['tau_规则2_vs_规则3_百分比vs粉丝'].mean():.4f}")
-    print(f"\n规则1 vs 规则2 (排名相加 vs 百分比相加) 平均tau: {result_df['tau_规则1_vs_规则2_排名vs百分比'].mean():.4f}")
+    print(f"规则1 vs 规则3 (排名相加 vs 只看粉丝投票) 平均tau: {result_df['tau_1-3'].mean():.5f}")
+    print(f"规则2 vs 规则3 (百分比相加 vs 只看粉丝投票) 平均tau: {result_df['tau_2-3'].mean():.5f}")
+    print(f"规则4 vs 规则3 (倒数两名评委决定 vs 只看粉丝投票) 平均tau: {result_df['tau_3-4'].mean():.5f}")
+    print(f"\n规则间比较:")
+    print(f"  规则1 vs 规则2 (排名相加 vs 百分比相加) 平均tau: {result_df['tau_1-2'].mean():.5f}")
+    print(f"  规则1 vs 规则4 (排名相加 vs 倒数两名评委决定) 平均tau: {result_df['tau_1-4'].mean():.5f}")
+    print(f"  规则2 vs 规则4 (百分比相加 vs 倒数两名评委决定) 平均tau: {result_df['tau_2-4'].mean():.5f}")
     print(f"\n更倾向于粉丝投票的规则统计:")
-    rule_counts = result_df['更倾向于粉丝投票的规则'].value_counts()
+    rule_counts = result_df['更倾向粉丝'].value_counts()
     print(rule_counts)
     print(f"\n结论:")
-    if rule_counts.get('规则1_排名相加', 0) > rule_counts.get('规则2_百分比相加', 0):
-        print("✓ 排名相加方式（规则1）更倾向于粉丝投票")
-        print(f"  在 {rule_counts.get('规则1_排名相加', 0)} 个season中，规则1与粉丝投票的一致性更高")
-    else:
-        print("✓ 百分比相加方式（规则2）更倾向于粉丝投票")
-        print(f"  在 {rule_counts.get('规则2_百分比相加', 0)} 个season中，规则2与粉丝投票的一致性更高")
-    print(f"\n平均tau值比较:")
-    print(f"  规则1与粉丝投票的平均一致性: {result_df['tau_规则1_vs_规则3_排名vs粉丝'].mean():.4f}")
-    print(f"  规则2与粉丝投票的平均一致性: {result_df['tau_规则2_vs_规则3_百分比vs粉丝'].mean():.4f}")
-    if result_df['tau_规则1_vs_规则3_排名vs粉丝'].mean() > result_df['tau_规则2_vs_规则3_百分比vs粉丝'].mean():
-        print("  → 规则1（排名相加）与粉丝投票的一致性更高")
-    else:
-        print("  → 规则2（百分比相加）与粉丝投票的一致性更高")
+    max_rule = rule_counts.index[0] if len(rule_counts) > 0 else None
+    if max_rule:
+        print(f"✓ {max_rule} 更倾向于粉丝投票")
+        print(f"  在 {rule_counts[max_rule]} 个season中，{max_rule}与粉丝投票的一致性更高")
+    print(f"\n平均tau值比较（与粉丝投票的一致性）:")
+    print(f"  规则1（排名相加）: {result_df['tau_1-3'].mean():.5f}")
+    print(f"  规则2（百分比相加）: {result_df['tau_2-3'].mean():.5f}")
+    print(f"  规则4（倒数两名评委决定）: {result_df['tau_3-4'].mean():.5f}")
+    
+    # 找出与粉丝投票一致性最高的规则
+    tau_means = {
+        '规则1': result_df['tau_1-3'].mean(),
+        '规则2': result_df['tau_2-3'].mean(),
+        '规则4': result_df['tau_3-4'].mean()
+    }
+    best_rule = max(tau_means, key=tau_means.get)
+    print(f"\n  → {best_rule}与粉丝投票的一致性最高 (tau = {tau_means[best_rule]:.4f})")
+    
+    # 格式化所有数值列为5位小数（除了season和选手数）
+    numeric_cols = [col for col in result_df.columns if col not in ['season', '更倾向粉丝', '选手数']]
+    for col in numeric_cols:
+        result_df[col] = result_df[col].apply(lambda x: f'{float(x):.5f}' if pd.notna(x) and x != '' else '')
+    
+    # 保存到CSV
+    result_df.to_csv(output_file, index=False, encoding='utf-8-sig')
     
     return result_df
 

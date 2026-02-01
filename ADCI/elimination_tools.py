@@ -1,9 +1,10 @@
 """
 淘汰规则工具函数
-包含三种淘汰规则：
+包含四种淘汰规则：
 1. 规则1：观众投票排名 + 评委评分排名，排名数值最大的淘汰
 2. 规则2：观众投票百分比 + 评委评分百分比，百分比数值最小的淘汰
 3. 规则3：只看粉丝投票数，投票数最小的淘汰
+4. 规则4：观众投票排名 + 评委评分排名，找出倒数两名，根据评委评分高低淘汰（评分低的淘汰）
 """
 
 import pandas as pd
@@ -207,6 +208,81 @@ def eliminate_by_fan_vote_only(season_data: pd.DataFrame) -> Dict[int, int]:
     return elimination_order
 
 
+def eliminate_by_rank_sum_bottom_two_judge(season_data: pd.DataFrame) -> Dict[int, int]:
+    """
+    规则4：观众投票排名 + 评委评分排名，找出倒数两名，根据评委评分高低淘汰（评分低的淘汰）
+    
+    参数:
+        season_data: 包含该season所有周次数据的DataFrame
+        必须包含列：season, week, index, v_predicted_share, judge_avg_score
+    
+    返回:
+        Dict[选手index, 淘汰次序] - 淘汰次序从1开始，1表示第一个被淘汰
+    """
+    # 获取所有周次，按顺序排序
+    weeks = sorted(season_data['week'].unique(), key=lambda x: int(x.split('_')[1]))
+    
+    # 获取所有选手
+    all_contestants = set(season_data['index'].unique())
+    active_contestants = all_contestants.copy()
+    
+    # 记录淘汰次序
+    elimination_order = {}
+    elimination_round = 1
+    
+    # 按周次进行比赛
+    for week in weeks:
+        if len(active_contestants) <= 1:
+            # 只剩一人，自动成为冠军
+            if len(active_contestants) == 1:
+                remaining = list(active_contestants)[0]
+                elimination_order[remaining] = elimination_round
+            break
+        
+        # 获取本周参赛选手的数据
+        week_data = season_data[
+            (season_data['week'] == week) & 
+            (season_data['index'].isin(active_contestants))
+        ].copy()
+        
+        if len(week_data) == 0:
+            continue
+        
+        # 如果只剩2人，直接比较评委评分
+        if len(week_data) == 2:
+            # 评委评分低的淘汰
+            eliminated = week_data.loc[week_data['judge_avg_score'].idxmin(), 'index']
+        else:
+            # 计算观众投票排名（排名越小越好，1最好）
+            week_data['fan_rank'] = week_data['v_predicted_share'].rank(ascending=False, method='min')
+            
+            # 计算评委评分排名（排名越小越好，1最好）
+            week_data['judge_rank'] = week_data['judge_avg_score'].rank(ascending=False, method='min')
+            
+            # 计算综合排名（排名数值越大越差）
+            week_data['combined_rank'] = week_data['fan_rank'] + week_data['judge_rank']
+            
+            # 找出倒数两名（综合排名最大的两个）
+            week_data_sorted = week_data.sort_values('combined_rank', ascending=False)
+            bottom_two = week_data_sorted.head(2)
+            
+            # 在倒数两名中，根据评委评分高低判断谁淘汰（评分低的淘汰）
+            eliminated = bottom_two.loc[bottom_two['judge_avg_score'].idxmin(), 'index']
+        
+        # 记录淘汰次序
+        elimination_order[eliminated] = elimination_round
+        elimination_round += 1
+        
+        # 从活跃选手中移除
+        active_contestants.remove(eliminated)
+    
+    # 为未淘汰的选手（冠军）分配最后的排名
+    for contestant in active_contestants:
+        elimination_order[contestant] = elimination_round
+    
+    return elimination_order
+
+
 def process_all_seasons(input_file: str, output_file: str):
     """
     处理所有season的数据，生成淘汰次序结果CSV
@@ -235,6 +311,9 @@ def process_all_seasons(input_file: str, output_file: str):
         # 使用规则3计算淘汰次序
         order_rule3 = eliminate_by_fan_vote_only(season_data)
         
+        # 使用规则4计算淘汰次序
+        order_rule4 = eliminate_by_rank_sum_bottom_two_judge(season_data)
+        
         # 获取该season的所有选手信息
         contestants_info = season_data[['index', 'celebrity_name']].drop_duplicates()
         
@@ -249,7 +328,8 @@ def process_all_seasons(input_file: str, output_file: str):
                 'celebrity_name': name,
                 '淘汰次序_规则1_排名相加': order_rule1.get(index, None),
                 '淘汰次序_规则2_百分比相加': order_rule2.get(index, None),
-                '淘汰次序_规则3_只看粉丝投票': order_rule3.get(index, None)
+                '淘汰次序_规则3_只看粉丝投票': order_rule3.get(index, None),
+                '淘汰次序_规则4_排名倒数两名评委决定': order_rule4.get(index, None)
             })
     
     # 创建结果DataFrame
