@@ -8,6 +8,7 @@ def run_prediction():
     # ==========================================
     try:
         # 加载优化后的模型参数
+        # 注意：文件名可能需要根据实际使用的参数文件调整，这里保持原名
         model_data = np.load('dwts_ranking_model.npz', allow_pickle=True)
         params = model_data['params']
         
@@ -21,22 +22,19 @@ def run_prediction():
         return
 
     # ==========================================
-    # 2. 特征工程 (需严格通过 optimize.py 的逻辑复刻)
+    # 2. 特征工程 (保持与 optimize.py 一致)
     # ==========================================
     
     # 提取原始特征列
-    # 注意：这里假设 df_fame 和 df_c 是行对齐的（行索引 0 对应同一个选手）
-    # 如果不是对齐的，需要通过选手名字 merge，但根据题目数据特性通常是预处理好的
-    # 这里我们使用 df_fame 来计算静态的人气得分
-    
-    pop_raw = df_fame['fame_1.4'].values
+    # 假设 df_fame 和 df_c 是行对齐的（行索引 0 对应同一个选手）
+    pop_raw = df_fame['fame_1.4'].values # 注意：请确认使用的 fame 版本与 CheckParams1 一致，此处沿用原代码
     age_raw = df_fame['celebrity_age_during_season'].values
     
-    # 获取行业特征列 (动态获取，保证顺序与训练时一致)
+    # 获取行业特征列
     ind_cols = [c for c in df_fame.columns if 'industry_' in c]
     ind_vals = df_fame[ind_cols].values
     
-    # 定义标准化函数 (与 optimize.py 一致)
+    # 定义标准化函数
     def scale(x): 
         return (x - x.mean()) / (x.std() + 1e-6)
     
@@ -48,29 +46,48 @@ def run_prediction():
     X = np.column_stack([pop_scaled, age_scaled, ind_vals])
     
     # ==========================================
-    # 3. 解析模型参数
+    # 3. 解析模型参数 (修改部分：增加 Sigma 参数解析)
     # ==========================================
     n_f = X.shape[1] # 特征数量
     
-    # 参数结构: w_mu(n_f), b_mu(1), w_sig(n_f), b_sig(1), w_judge(1)
-    w_mu = params[:n_f]
-    b_mu = params[n_f]
+    # 参数结构假设: [w_mu(n), b_mu(1), w_sig(n), b_sig(1), w_judge(1)]
+    # 指针位置追踪
+    idx = 0
     
-    # 提取评委权重供参考，计算观众票数时主要用到 mu
-    # w_judge = params[-1] 
+    # 提取 Mu (均值) 参数
+    w_mu = params[idx : idx + n_f]
+    idx += n_f
+    b_mu = params[idx]
+    idx += 1
+    
+    # 提取 Sigma (方差) 参数 - 原代码缺失部分
+    w_sig = params[idx : idx + n_f]
+    idx += n_f
+    b_sig = params[idx]
+    idx += 1
+    
+    # 提取评委权重 (虽然计算V时主要用不到，但为了完整性解析)
+    # w_judge = params[idx]
     
     # ==========================================
-    # 4. 计算潜在粉丝力量 (Latent Fan Strength)
+    # 4. 计算潜在粉丝力量 (Mu) 和 波动性 (Sigma)
     # ==========================================
-    # Mu 代表了选手基于自身属性（名气、年龄、行业）的固有吸票能力
+    # Mu: 基础吸票能力
     latent_mu = np.dot(X, w_mu) + b_mu
     
-    # 将计算出的 Mu 贴回 df_c 以便按赛季处理
-    df_c['latent_fan_strength'] = latent_mu
+    # Sigma: 人气波动范围 (使用 exp 保证非负)
+    latent_sigma = np.exp(np.dot(X, w_sig) + b_sig)
+    
+    # 将计算出的参数贴回 df_c
+    df_c['player_mu'] = latent_mu
+    df_c['player_sigma'] = latent_sigma
     
     # ==========================================
-    # 5. 逐周生成预测数据
+    # 5. 逐周生成预测数据 (引入随机采样)
     # ==========================================
+    # 设置随机种子保证结果可复现 (与 CheckParams1 保持一致)
+    np.random.seed(2026)
+    
     output_rows = []
     
     seasons = sorted(df_c['season'].unique())
@@ -79,7 +96,7 @@ def run_prediction():
         # 获取该赛季所有选手
         season_df = df_c[df_c['season'] == season].copy()
         
-        # 遍历 Week 1 到 Week 11 (根据数据列名推断)
+        # 遍历 Week 1 到 Week 11
         for week_num in range(1, 12):
             # 构建列名匹配模式
             judge_cols = [f'week{week_num}_judge{j}_score' for j in range(1, 5)]
@@ -89,35 +106,37 @@ def run_prediction():
             if not existing_cols:
                 continue
                 
-            # 计算当周评委平均分 (处理 N/A)
-            # errors='coerce' 会将 'N/A' 变为 NaN
+            # 计算当周评委平均分
             week_scores = season_df[existing_cols].apply(pd.to_numeric, errors='coerce')
-            
-            # 计算平均分，忽略 NaN
             season_df['current_week_judge_avg'] = week_scores.mean(axis=1)
             
-            # 筛选当周“存活”的选手
-            # 条件：评委分 > 0 (0通常代表已淘汰或未参赛)
+            # 筛选当周“存活”的选手 (评委分 > 0)
             active_dancers = season_df[season_df['current_week_judge_avg'] > 0].copy()
             
             if active_dancers.empty:
                 continue
             
-            # === 核心逻辑：计算份额 ===
-            # 使用 Softmax 将潜在人气值转化为总和为 1 的概率分布
-            # 乘以系数 5.0 是为了模拟投票的集中效应 (人气高的人拿票比例会显著高)
-            # 这个系数即 optimize.py 中的 "Temperature" 概念，虽未显式优化，但在生成时常用
-            mus = active_dancers['latent_fan_strength'].values
-            shares = softmax(mus)
+            # === 核心逻辑修改：引入噪声采样 ===
+            mus = active_dancers['player_mu'].values
+            sigs = active_dancers['player_sigma'].values
             
-            # 保存结果
+            # 从正态分布 N(mu, sigma) 中采样，模拟当周表现
+            sampled_vals = np.random.normal(loc=mus, scale=sigs)
+            
+            # 使用 Softmax 计算份额
+            shares = softmax(sampled_vals)
+            
+            # 保存结果 (结构与 predicted_fan_votes_v1.csv 一致)
             for idx, (original_idx, row) in enumerate(active_dancers.iterrows()):
                 output_rows.append({
                     'season': row['season'],
                     'week': f'Week_{week_num}',
                     'celebrity_name': row['celebrity_name'],
                     'v_predicted_share': shares[idx],
-                    'judge_avg_score': row['current_week_judge_avg']
+                    'judge_avg_score': row['current_week_judge_avg'],
+                    'mu_base': mus[idx],          # 新增列
+                    'sigma': sigs[idx],           # 新增列
+                    'sampled_val': sampled_vals[idx] # 新增列
                 })
 
     # ==========================================
@@ -125,13 +144,14 @@ def run_prediction():
     # ==========================================
     df_output = pd.DataFrame(output_rows)
     
-    # 格式化输出文件名
+    # 格式化输出文件名 (保持与 v1 一致或自定义)
     output_filename = 'predicted_fan_votes_v.csv'
     df_output.to_csv(output_filename, index=False)
     
     print(f"预测完成！")
     print(f"已生成文件: {output_filename}")
     print(f"包含记录数: {len(df_output)}")
+    print(f"列名检查: {list(df_output.columns)}")
     print(f"样例数据:\n{df_output.head()}")
 
 if __name__ == "__main__":
