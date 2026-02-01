@@ -20,7 +20,7 @@ df_train_all.to_csv('2026_MCM_Problem_Train_Data')
 def preprocess_features(df):
     """特征提取与标准化"""
     # 注意：这里我们保留 season 列用于后续的分组排名
-    pop_raw = df['fame_1.1'].values
+    pop_raw = df['fame_1.4'].values
     age_raw = df['celebrity_age_during_season'].values
     X_judge_raw = df['score_sum'].values
     

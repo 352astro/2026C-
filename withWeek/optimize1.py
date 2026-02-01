@@ -20,7 +20,7 @@ def preprocess_features(df):
     def scale(x): return (x - x.mean()) / (x.std() + 1e-6)
     
     X_j = scale(df['score_sum'].values) # 评委总分
-    pop = scale(df['fame_1.1'].values)
+    pop = scale(df['fame_1.4'].values)
     age = scale(df['celebrity_age_during_season'].values)
     
     # 提取周数（用于在损失函数中与 mu 相乘）
