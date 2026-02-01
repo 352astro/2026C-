@@ -5,3 +5,7 @@
 规则3是只看粉丝
 
 规则4是用排名但倒数两位淘汰由评委决定
+
+ADCI\contestants_analysis.csv中的tau_diff是规则1和规则3的一致性减去规则2和规则3的一致性
+
+ADCI\controversial_contestants_comparison.csv是举例争议明星的排序变化
