@@ -37,7 +37,7 @@ processed_data.drop(columns=['celebrity_industry', 'temp_category'], inplace=Tru
 new_columns = [col for col in processed_data.columns if 'industry_' in col]
 print(processed_data[['season', 'placement'] + new_columns].head())
 
-processed_data.drop(['placement','season','weeks'],inplace=True, axis=1)
+processed_data.drop(['placement','season'],inplace=True, axis=1)
 processed_data.drop([str(i) for i in range(1,12)],inplace=True,axis=1)
 
 processed_data.to_csv('2026_MCM_Problem_Labeled_Data.csv', index=False)
