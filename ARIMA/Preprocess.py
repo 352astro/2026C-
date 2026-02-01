@@ -42,7 +42,6 @@ print(processed_percentage)
 processed_percentage['elimination_order'] = processed_percentage.groupby('season')['placement'].rank(ascending=False, method='min')
 processed_percentage['score_sum'] = processed_percentage[[str(i) for i in range(1, 12)]].sum(axis=1)
 # plt.figure(figsize=(10, 6)) # 设置画布大小
-
 # 画散点图
 # x轴：淘汰次序 (elimination_order)
 # y轴：总分 (score_sum)
