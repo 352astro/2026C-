@@ -1,0 +1,422 @@
+﻿season,year,celebrity_name,celebrity_total_pageviews,celebrity_total_edits,ballroom_partner,ballroom_total_pageviews,ballroom_total_edits
+1,2005,John O'Hurley,0,49,Charlotte Jorgensen,0,0
+1,2005,Kelly Monaco,0,114,Alec Mazo,0,0
+1,2005,Evander Holyfield,0,47,Edyta Sliwinska,0,12
+1,2005,Rachel Hunter,0,24,Jonathan Roberts,0,2
+1,2005,Joey McIntyre,0,31,Ashly DelGrosso,0,0
+1,2005,Trista Sutter,0,39,Louis van Amstel,0,0
+2,2006,Tatum O'Neal,0,83,Nick Kosovich,0,17
+2,2006,Tia Carrere,0,123,Maksim Chmerkoskiy,0,0
+2,2006,George Hamilton,0,0,Edyta Sliwinska,0,771
+2,2006,Lisa Rinna,0,98,Louis van Amstel,0,34
+2,2006,Stacy Keibler,0,1098,Tony Dovolani,0,43
+2,2006,Jerry Rice,0,495,Anna Trebunskaya,0,0
+2,2006,Giselle Fernandez,0,0,Jonathan Roberts,0,5
+2,2006,Master P,0,668,Ashly DelGrosso,0,39
+2,2006,Drew Lachey,0,97,Cheryl Burke,0,123
+2,2006,Kenny Mayne,0,64,Andrea Hale,0,0
+3,2006,Harry Hamlin,0,0,Ashly DelGrosso,0,39
+3,2006,Vivica A. Fox,0,104,Nick Kosovich,0,17
+3,2006,Monique Coleman,0,427,Louis van Amstel,0,34
+3,2006,Joey Lawrence,0,123,Edyta Sliwinska,0,771
+3,2006,Mario Lopez,0,369,Karina Smirnoff,0,109
+3,2006,Emmitt Smith,0,372,Cheryl Burke,0,123
+3,2006,Shanna Moakler,0,173,Jesse DeSoto,0,0
+3,2006,Willa Ford,0,642,Maksim Chmerkoskiy,0,0
+3,2006,Sara Evans,0,476,Tony Dovolani,0,43
+3,2006,Jerry Springer,0,330,Kym Johnson,0,0
+3,2006,Tucker Carlson,0,750,Elena Grinenko,0,0
+4,2007,John Ratzenberger,0,193,Edyta Sliwinska,0,2095
+4,2007,Ian Ziering,0,104,Cheryl Burke,0,288
+4,2007,Clyde Drexler,0,133,Elena Grinenko,0,6
+4,2007,Laila Ali,0,170,Maksim Chmerkoskiy,0,11
+4,2007,Apolo Anton Ohno,0,109,Julianne Hough,0,363
+4,2007,Shandi Finnessey,0,136,Brian Fortuna,0,17
+4,2007,Paulina Porizkova,0,136,Alec Mazo,0,37
+4,2007,Heather Mills,0,594,Jonathan Roberts,0,9
+4,2007,Billy Ray Cyrus,0,1847,Karina Smirnoff,0,218
+4,2007,Joey Fatone,0,344,Kym Johnson,0,0
+4,2007,Leeza Gibbons,0,36,Tony Dovolani,0,129
+5,2007,Cameron Mathison,0,54,Edyta Sliwinska,0,2095
+5,2007,Jane Seymour,0,235,Tony Dovolani,0,129
+5,2007,Sabrina Bryan,0,481,Mark Ballas,0,61
+5,2007,Jennie Garth,0,155,Derek Hough,0,65
+5,2007,Floyd Mayweather Jr. ,0,1249,Karina Smirnoff,0,218
+5,2007,Josie Maran,0,190,Alec Mazo,0,37
+5,2007,Albert Reed,0,30,Anna Trebunskaya,0,34
+5,2007,Helio Castroneves,0,16,Julianne Hough,0,363
+5,2007,Mel B,0,520,Maksim Chmerkoskiy,0,11
+5,2007,Wayne Newton,0,224,Cheryl Burke,0,288
+5,2007,Marie Osmond,0,431,Jonathan Roberts,0,9
+5,2007,Mark Cuban,0,734,Kym Johnson,0,0
+6,2008,Cristian de la Fuente,0,0,Cheryl Burke,0,466
+6,2008,Steve Guttenberg,0,207,Anna Trebunskaya,0,50
+6,2008,Priscilla Presley,0,297,Louis van Amstel,0,63
+6,2008,Marlee Matlin,0,182,Fabian Sanchez,0,24
+6,2008,Shannon Elizabeth,0,300,Derek Hough,0,315
+6,2008,Marissa Jaret Winokur,0,123,Tony Dovolani,0,235
+6,2008,Jason Taylor,0,340,Edyta Sliwinska,0,3193
+6,2008,Kristi Yamaguchi,0,368,Mark Ballas,0,248
+6,2008,Monica Seles,0,297,Jonathan Roberts,0,11
+6,2008,Penn Jillette,0,183,Kym Johnson,0,0
+6,2008,Adam Carolla,0,305,Julianne Hough,0,979
+6,2008,Mario,0,842,Karina Smirnoff,0,365
+7,2008,Ted McGinley,0,72,Inna Brayer,0,18
+7,2008,Cloris Leachman,0,206,Corky Ballas,0,92
+7,2008,Susan Lucci,0,160,Tony Dovolani,0,235
+7,2008,Cody Linley,0,877,Julianne Hough,0,979
+7,2008,Misty May-Treanor,0,0,Maksim Chmerkoskiy,0,43
+7,2008,Maurice Greene,0,0,Cheryl Burke,0,466
+7,2008,Warren Sapp,0,357,Kym Johnson,0,0
+7,2008,Jeffrey Ross,0,0,Edyta Sliwinska,0,3193
+7,2008,Toni Braxton,0,436,Alec Mazo,0,51
+7,2008,Lance Bass,0,571,Lacey Schwimmer,0,374
+7,2008,Kim Kardashian,0,1243,Mark Ballas,0,248
+7,2008,Rocco DiSpirito,0,53,Karina Smirnoff,0,365
+7,2008,Brooke Burke,0,339,Derek Hough,0,315
+8,2009,Gilles Marini,0,128,Cheryl Burke,0,617
+8,2009,Denise Richards,0,240,Maksim Chmerkoskiy,0,80
+8,2009,David Alan Grier,0,127,Kym Johnson,0,35
+8,2009,Lawrence Taylor,0,174,Edyta Sliwinska,0,4447
+8,2009,Ty Murray,0,132,Chelsie Hightower,0,173
+8,2009,Shawn Johnson,0,477,Mark Ballas,0,567
+8,2009,Steve Wozniak,0,556,Karina Smirnoff,0,523
+8,2009,Belinda Carlisle,0,412,Jonathan Roberts,0,17
+8,2009,Chuck Wicks,0,157,Julianne Hough,0,1370
+8,2009,Lil' Kim,0,532,Derek Hough,0,514
+8,2009,Steve-O,0,195,Lacey Schwimmer,0,580
+8,2009,Holly Madison,0,335,Dmitry Chaplin,0,219
+8,2009,Melissa Rycroft,0,381,Tony Dovolani,0,376
+9,2009,Ashley Hamiliton,0,0,Edyta Sliwinska,0,4447
+9,2009,Debi Mazar,0,77,Maksim Chmerkoskiy,0,80
+9,2009,Melissa Joan Hart,0,322,Mark Ballas,0,567
+9,2009,Mark Dacascos,0,95,Lacey Schwimmer,0,580
+9,2009,Chuck Liddell,0,315,Anna Trebunskaya,0,69
+9,2009,Natalie Coughlin,0,97,Alec Mazo,0,138
+9,2009,Louie Vito,0,103,Chelsie Hightower,0,173
+9,2009,Michael Irvin,0,158,Anna Demidova,0,44
+9,2009,Joanna Krupa,0,348,Derek Hough,0,514
+9,2009,Kathy Ireland,0,132,Tony Dovolani,0,376
+9,2009,Tom DeLay,0,505,Cheryl Burke,0,617
+9,2009,Macy Gray,0,129,Jonathan Roberts,0,17
+9,2009,Aaron Carter,0,130,Karina Smirnoff,0,523
+9,2009,Mya,0,671,Dmitry Chaplin,0,219
+9,2009,Donny Osmond,0,264,Kym Johnson,0,35
+9,2009,Kelly Osbourne,0,357,Louis van Amstel,0,132
+10,2010,Aiden Turner,0,52,Edyta Sliwinska,0,5606
+10,2010,Shannen Doherty,0,357,Mark Ballas,0,693
+10,2010,Niecy Nash,0,127,Louis van Amstel,0,171
+10,2010,Buzz Aldrin,0,185,Ashly DelGrosso,0,141
+10,2010,Chad Ochocinco,0,0,Cheryl Burke,0,552
+10,2010,Evan Lysacek,0,463,Anna Trebunskaya,0,175
+10,2010,Pamela Anderson,0,868,Damian Whitewood,0,14
+10,2010,Nicole Scherzinger,0,1002,Derek Hough,0,879
+10,2010,Erin Andrews,0,246,Maksim Chmerkoskiy,0,32
+10,2010,Kate Gosselin,0,602,Tony Dovolani,0,466
+10,2010,Jake Pavelka,0,67,Chelsie Hightower,0,151
+11,2010,David Hasselhoff,0,680,Kym Johnson,0,133
+11,2010,Florence Henderson,0,121,Corky Ballas,0,111
+11,2010,Kyle Massey,0,371,Lacey Schwimmer,0,373
+11,2010,Jennifer Grey,0,224,Derek Hough,0,879
+11,2010,Rick Fox,0,132,Cheryl Burke,0,552
+11,2010,Kurt Warner,0,640,Anna Trebunskaya,0,175
+11,2010,Margaret Cho,0,169,Louis van Amstel,0,171
+11,2010,Michael Bolton,0,163,Chelsie Hightower,0,151
+11,2010,Brandy,0,112,Maksim Chmerkoskiy,0,32
+11,2010,The Situation,0,32,Karina Smirnoff,0,645
+11,2010,Audrina Patridge,0,345,Tony Dovolani,0,466
+11,2010,Bristol Palin,0,809,Mark Ballas,0,693
+12,2011,Ralph Macchio,0,268,Karina Smirnoff,0,839
+12,2011,Chelsea Kane,0,579,Mark Ballas,0,847
+12,2011,Kirstie Alley,0,249,Maksim Chmerkoskiy,0,114
+12,2011,Hines Ward,0,351,Kym Johnson,0,295
+12,2011,Sugar Ray Leonard,0,197,Anna Trebunskaya,0,220
+12,2011,Chris Jericho,0,1368,Cheryl Burke,0,635
+12,2011,Petra Nemcova,0,11,Dmitry Chaplin,0,191
+12,2011,Mike Catherwood,0,102,Lacey Schwimmer,0,750
+12,2011,Romeo,0,163,Chelsie Hightower,0,453
+12,2011,Wendy Williams,0,300,Tony Dovolani,0,466
+12,2011,Kendra Wilkinson,0,38,Louis van Amstel,0,100
+13,2011,Elisabetta Canalis,0,136,Valentin Chmerkovskiy,0,96
+13,2011,David Arquette,0,173,Kym Johnson,0,295
+13,2011,Ricki Lake,0,183,Derek Hough,0,1079
+13,2011,J.R. Martinez,0,221,Karina Smirnoff,0,839
+13,2011,Metta World Peace (Ron),0,0,Peta Murgatroyd,0,0
+13,2011,Hope Solo,0,410,Maksim Chmerkoskiy,0,114
+13,2011,Chynna Phillips,0,55,Tony Dovolani,0,466
+13,2011,Kristin Cavallari,0,305,Mark Ballas,0,847
+13,2011,Carson Kressley,0,39,Anna Trebunskaya,0,220
+13,2011,Chaz Bono,0,156,Lacey Schwimmer,0,750
+13,2011,Nancy Grace,0,252,Tristan MacManus,0,83
+13,2011,Rob Kardashian,0,0,Cheryl Burke,0,635
+14,2012,William Levy,0,449,Cheryl Burke,0,953
+14,2012,Jack Wagner,0,61,Anna Trebunskaya,0,236
+14,2012,Sherri Sheperd,0,0,Valentin Chmerkovskiy,0,207
+14,2012,Jaleel White,0,360,Kym Johnson,0,365
+14,2012,Roshon Fegan,0,286,Chelsie Hightower,0,602
+14,2012,Melissa Gilbert,0,81,Maksim Chmerkoskiy,0,126
+14,2012,Martina Navratilova,0,192,Tony Dovolani,0,723
+14,2012,Donald Driver,0,138,Peta Murgatroyd,0,153
+14,2012,Gavin DeGraw,0,279,Karina Smirnoff,0,974
+14,2012,Gladys Knight,0,74,Tristan MacManus,0,136
+14,2012,Katherine Jenkins,0,111,Mark Ballas,0,1027
+14,2012,Maria Menounos,0,195,Derek Hough,0,1419
+15,2012,Gilles Marini,0,47,Peta Murgatroyd,0,153
+15,2012,Sabrina Bryan,0,103,Louis van Amstel,0,749
+15,2012,Kirstie Alley,0,122,Maksim Chmerkoskiy,0,126
+15,2012,Kelly Monaco,0,100,Valentin Chmerkovskiy,0,207
+15,2012,Apolo Anton Ohno,0,135,Karina Smirnoff,0,974
+15,2012,Emmitt Smith,0,148,Cheryl Burke,0,953
+15,2012,Shawn Johnson,0,202,Derek Hough,0,1419
+15,2012,Pamela Anderson,0,255,Tristan MacManus,0,136
+15,2012,Helio Castroneves,0,5,Chelsie Hightower,0,602
+15,2012,Joey Fatone,0,88,Kym Johnson,0,365
+15,2012,Drew Lachey,0,32,Anna Trebunskaya,0,236
+15,2012,Bristol Palin,0,140,Mark Ballas,0,1027
+15,2012,Melissa Rycroft,0,58,Tony Dovolani,0,723
+16,2013,Ingo Rademacher,0,40,Kym Johnson,0,509
+16,2013,Zendaya,0,229,Valentin Chmerkovskiy,0,392
+16,2013,Dorothy Hamill,0,30,Tristan MacManus,0,210
+16,2013,Victor Ortiz,0,124,Lindsay Arnold,0,19
+16,2013,Alexandra Raisman,0,0,Mark Ballas,0,1241
+16,2013,Jacoby Jones,0,272,Karina Smirnoff,0,1108
+16,2013,D. L. Hughley,0,62,Cheryl Burke,0,1093
+16,2013,Andy Dick,0,47,Sharna Burgess,0,0
+16,2013,Wynonna Judd,0,9,Tony Dovolani,0,820
+16,2013,Kellie Pickler,0,316,Derek Hough,0,1826
+16,2013,Lisa Vanderpump,0,102,Gleb Savchenko,0,0
+16,2013,Sean Lowe,0,0,Peta Murgatroyd,0,265
+17,2013,Valerie Harper,0,180,Tristan MacManus,0,210
+17,2013,Brant Daugherty,0,56,Peta Murgatroyd,0,265
+17,2013,Elizabeth Berkley Lauren,0,45,Valentin Chmerkovskiy,0,392
+17,2013,Leah Remini,0,298,Tony Dovolani,0,820
+17,2013,Corbin Bleu,0,80,Karina Smirnoff,0,1108
+17,2013,Amber Riley,0,149,Derek Hough,0,1826
+17,2013,Keyshawn Johnson,0,42,Sharna Burgess,0,0
+17,2013,Bill Engvall,0,41,Emma Slater,0,93
+17,2013,Christina Milian,0,191,Mark Ballas,0,1241
+17,2013,"Nicole ""Snooki"" Polizzi",0,106,Sasha Farber,0,0
+17,2013,Jack Osbourne,0,64,Cheryl Burke,0,1093
+17,2013,Bill Nye,0,75,Tyne Stecklein,0,3841
+18,2014,Billy Dee Williams,0,76,Emma Slater,0,159
+18,2014,Danica McKellar,0,75,Valentin Chmerkovskiy,0,599
+18,2014,James Maslow,0,320,Peta Murgatroyd,0,380
+18,2014,Candace Cameron Bure,0,124,Mark Ballas,0,1392
+18,2014,Sean Avery,0,65,Karina Smirnoff,0,1178
+18,2014,Diana Nyad,0,91,Henry Byalikov,0,25
+18,2014,Charlie White,0,199,Sharna Burgess,0,174
+18,2014,Amy Purdy,0,138,Derek Hough,0,2134
+18,2014,Meryl Davis,0,244,Maksim Chmerkoskiy,0,135
+18,2014,Drew Carey,0,82,Cheryl Burke,0,1187
+18,2014,Cody Simpson,0,378,Witney Carson,0,192
+18,2014,NeNe Leakes,0,153,Tony Dovolani,0,921
+19,2014,Antonio Sabato Jr.,0,3,Cheryl Burke,0,1187
+19,2014,Jonathan Bennett,0,86,Allison Holker,0,278
+19,2014,Lea Thompson,0,70,Artem Chigvintsev,0,308
+19,2014,Janel Parrish,0,165,Valentin Chmerkovskiy,0,599
+19,2014,Alfonso Ribeiro,0,162,Witney Carson,0,192
+19,2014,Lolo Jones,0,96,Keo Motsepe,0,0
+19,2014,Randy Couture,0,77,Karina Smirnoff,0,1178
+19,2014,Tommy Chong,0,104,Peta Murgatroyd,0,380
+19,2014,Betsey Johnson,0,27,Tony Dovolani,0,921
+19,2014,Michael Waltrip,0,182,Emma Slater,0,159
+19,2014,Tavis Smiley,0,37,Sharna Burgess,0,174
+19,2014,Bethany Mota,0,412,Derek Hough,0,2134
+19,2014,Sadie Robertson,0,192,Mark Ballas,0,1392
+20,2015,Suzanne Somers,235691,76,Tony Dovolani,103367,981
+20,2015,Willow Shields,234385,150,Mark Ballas,254929,1444
+20,2015,Riker Lynch,159374,197,Allison Holker,430122,440
+20,2015,Rumer Willis,439034,120,Valentin Chmerkovskiy,237093,851
+20,2015,Nastia Liukin,144701,75,Derek Hough,942035,2448
+20,2015,Michael Sam,317811,122,Peta Murgatroyd,224947,494
+20,2015,Robert Herjavec,553249,147,Kym Johnson,0,907
+20,2015,Charlotte McKinney,493035,190,Keo Motsepe,54243,66
+20,2015,Noah Galloway,94003,166,Sharna Burgess,198452,311
+20,2015,Redfoo,436746,222,Emma Slater,182876,222
+20,2015,Patti LaBelle,324013,168,Artem Chigvintsev,210749,390
+20,2015,Chris Soules,99152,65,Witney Carson,292128,438
+21,2015,Gary Busey,1365004,168,Anna Trebunskaya,108155,356
+21,2015,Alexa PenaVega,233251,164,Mark Ballas,254929,1444
+21,2015,Carlos PenaVega,97826,151,Witney Carson,292128,438
+21,2015,Victor Espinoza,189012,146,Karina Smirnoff,244070,1254
+21,2015,Alek Skarlatos,520847,150,Lindsay Arnold,191620,159
+21,2015,Chaka Khan,508082,109,Keo Motsepe,54243,66
+21,2015,Andy Grammer,775284,231,Allison Holker,430122,440
+21,2015,Tamar Braxton,828412,462,Valentin Chmerkovskiy,237093,851
+21,2015,Nick Carter,25902,145,Sharna Burgess,198452,311
+21,2015,Hayes Grier,384198,147,Emma Slater,182876,222
+21,2015,Bindi Irwin,1561823,232,Derek Hough,942035,2448
+21,2015,Kim Zolciak-Biermann,1242975,164,Tony Dovolani,103367,981
+21,2015,Paula Deen,416444,122,Louis van Amstel,35521,807
+22,2016,Mischa Barton,1358069,28,Artem Chigvintsev,607087,490
+22,2016,Kim Fields,912405,85,Sasha Farber,238341,128
+22,2016,Jodie Sweetin,3920642,73,Keo Motsepe,189988,125
+22,2016,Doug Flutie,1022980,128,Karina Smirnoff,588757,1295
+22,2016,Von Miller,2210224,720,Witney Carson,725902,482
+22,2016,Antonio Brown,1429112,572,Sharna Burgess,676880,335
+22,2016,Paige VanZant,1568085,177,Mark Ballas,779296,1689
+22,2016,Geraldo Rivera,842682,95,Edyta Sliwinska,0,9135
+22,2016,Nyle DiMarco,1627258,319,Peta Murgatroyd,890144,645
+22,2016,Ginger Zee,743733,56,Valentin Chmerkovskiy,916054,1065
+22,2016,Wanya Morris,393803,10,Lindsay Arnold,489577,293
+22,2016,Marla Maples,8125003,253,Tony Dovolani,224835,1022
+23,2016,Jake T. Austin,1199272,34,Jenna Johnson,64912,62
+23,2016,Maureen McCormick,1781147,60,Artem Chigvintsev,607087,490
+23,2016,Marilu Henner,978445,48,Derek Hough,2113396,2739
+23,2016,Ryan Lochte,2982304,521,Cheryl Burke,652130,1271
+23,2016,Calvin Johnson Jr.,1485822,448,Lindsay Arnold,489577,293
+23,2016,Laurie Hernandez,1581890,318,Valentin Chmerkovskiy,916054,1065
+23,2016,Amber Rose,4575897,424,Maksim Chmerkoskiy,44091,157
+23,2016,Rick Perry,826678,265,Emma Slater,439233,280
+23,2016,James Hinchcliffe,545926,89,Sharna Burgess,676880,335
+23,2016,Babyface,737054,84,Allison Holker,848036,516
+23,2016,Vanilla Ice,1441109,80,Witney Carson,725902,482
+23,2016,Jana Kramer,1707311,138,Gleb Savchenko,382867,132
+23,2016,Terra Jole,0,715,Sasha Farber,238341,128
+24,2017,Charo,1961433,129,Keo Motsepe,295102,173
+24,2017,Mr. T,1843493,51,Kym Herjavec,89496,792
+24,2017,Heather Morris,691195,75,Maksim Chmerkoskiy,74493,159
+24,2017,Nancy Kerrigan,2362017,104,Artem Chigvintsev,1094833,577
+24,2017,Bonner Bolton,373210,55,Sharna Burgess,1182244,566
+24,2017,Simone Biles,1238180,261,Sasha Farber,535924,200
+24,2017,David Ross,757693,201,Lindsay Arnold,1080550,436
+24,2017,Rashad Jennings,884474,116,Emma Slater,918284,405
+24,2017,Chris Kattan,909538,63,Witney Carson,1315555,744
+24,2017,Erika Jayne,1421023,187,Gleb Savchenko,576826,213
+24,2017,Normani,1632,435,Valentin Chmerkovskiy,1482464,1257
+24,2017,Nick Viall,248256,88,Peta Murgatroyd,1417347,737
+25,2017,Sasha Pieterse,1330647,168,Gleb Savchenko,576826,213
+25,2017,Frankie Muniz,2141520,195,Witney Carson,1315555,744
+25,2017,Jordan Fisher,1397516,126,Lindsay Arnold,1080550,436
+25,2017,Derek Fisher,629109,88,Sharna Burgess,1182244,566
+25,2017,Nikki Bella,3115522,641,Artem Chigvintsev,1094833,577
+25,2017,Terrell Owens,1243732,596,Cheryl Burke,1161660,1348
+25,2017,Victoria Arlen,714410,24,Valentin Chmerkovskiy,1482464,1257
+25,2017,Barbara Corcoran,1251685,65,Keo Motsepe,295102,173
+25,2017,Lindsey Stirling,1501365,176,Mark Ballas,1308697,1748
+25,2017,Debbie Gibson,889211,72,Alan Bersten,15513,3
+25,2017,Nick Lachey,1142121,50,Peta Murgatroyd,1417347,737
+25,2017,Drew Scott,975277,464,Emma Slater,918284,405
+25,2017,Vanessa Lachey,970093,38,Maksim Chmerkoskiy,74493,159
+26,2018,Jamie Anderson,345458,46,Artem Chigvintsev,1363067,643
+26,2018,Johnny Damon,357296,24,Emma Slater,1126022,484
+26,2018,Kareem Abdul-Jabbar,3152865,133,Lindsay Arnold,1394292,511
+26,2018,Arike Ogunbowale,51692,35,Gleb Savchenko,701083,259
+26,2018,Jennie Finch Daigle,350815,47,Keo Motsepe,414557,265
+26,2018,Chris Mazdzer,196107,43,Witney Carson,1685355,824
+26,2018,Mirai Nagasu,820929,133,Alan Bersten,90766,3
+26,2018,Tonya Harding,10642024,1813,Sasha Farber,688112,291
+26,2018,Josh Norman,331029,240,Sharna Burgess,1537082,659
+26,2018,Adam Rippon,1425534,230,Jenna Johnson,732137,241
+27,2018,Juan Pablo Di Pace,577909,44,Cheryl Burke,1744322,1426
+27,2018,Evanna Lynch,1038138,123,Keo Motsepe,414557,265
+27,2018,Nancy McKeon,888149,69,Valentin Chmerkovskiy,1798590,1345
+27,2018,John Schneider,1113704,115,Emma Slater,1126022,484
+27,2018,Milo Manheim,929796,246,Witney Carson,1685355,824
+27,2018,Danelle Umstead,189859,11,Artem Chigvintsev,1363067,643
+27,2018,Mary Lou Retton,911859,84,Sasha Farber,688112,291
+27,2018,DeMarcus Ware,453456,32,Lindsay Arnold,1394292,511
+27,2018,Nikki Glaser,841092,54,Gleb Savchenko,701083,259
+27,2018,Bobby Bones,855656,166,Sharna Burgess,1537082,659
+27,2018,Tinashe,1163249,415,Brandon Armstrong,21337,1
+27,2018,Alexis Ren,975502,182,Alan Bersten,90766,3
+27,2018,Joe Amabile,44569,4,Jenna Johnson,732137,241
+28,2019,Kate Flannery,649234,71,Pasha Pashkov,17509,1
+28,2019,James Van Der Beek,1480010,71,Emma Slater,848648,562
+28,2019,Kel Mitchell,1071445,163,Witney Carson,1948962,933
+28,2019,Ray Lewis,1085511,130,Cheryl Burke,1265764,1484
+28,2019,Lamar Odom,1399474,59,Peta Murgatroyd,1644020,789
+28,2019,Sailor Brinkley-Cook,2266796,339,Valentin Chmerkovskiy,1373293,1405
+28,2019,Sean Spicer,731924,38,Lindsay Arnold,1589805,581
+28,2019,Mary Wilson,464617,31,Brandon Armstrong,33350,2
+28,2019,Lauren Alaina,704976,120,Gleb Savchenko,863719,331
+28,2019,Ally Brooke,973231,362,Sasha Farber,830139,366
+28,2019,Karamo Brown,1820858,86,Jenna Johnson,1008262,458
+28,2019,Hannah Brown,892652,155,Alan Bersten,311967,171
+29,2020,Anne Heche,2030527,48,Keo Motsepe,789215,296
+29,2020,Jesse Metcalfe,1522583,69,Sharna Burgess,2030169,708
+29,2020,Chrishell Stause,3454832,80,Gleb Savchenko,1090325,377
+29,2020,Skai Jackson,1405707,102,Alan Bersten,445482,199
+29,2020,Justina Machado,950052,54,Sasha Farber,951975,399
+29,2020,Charles Oakley,713318,15,Emma Slater,1484478,593
+29,2020,Veron Davis,3339,4,Peta Murgatroyd,2138004,815
+29,2020,Johnny Weir,665830,221,Britt Stewart,16576,1
+29,2020,Nev Schulman,919436,50,Jenna Johnson,1294270,547
+29,2020,AJ McLean,668746,96,Cheryl Burke,2794289,1555
+29,2020,Nelly,1439364,37,Daniella Karagach,191033,156
+29,2020,Kaitlyn Bristowe,633968,47,Artem Chigvintsev,3184900,828
+29,2020,Carole Baskin,8957891,429,Pasha Pashkov,46972,1
+29,2020,Monica Aldama,410498,57,Valentin Chmerkovskiy,2290002,1449
+29,2020,Jeannie Mai,1191954,126,Brandon Armstrong,47633,2
+30,2021,Martin Kove,1203876,200,Britt Stewart,29373,10
+30,2021,Brian Austin Green,2634189,115,Sharna Burgess,2676977,746
+30,2021,Melora Hardin,1579107,51,Artem Chigvintsev,3184900,867
+30,2021,Matt James,638048,60,Lindsay Arnold,1950442,662
+30,2021,"Mike ""The Miz"" Mizanin",1231814,163,Witney Carson,2484419,1024
+30,2021,Suni Lee,6685016,532,Sasha Farber,1052238,409
+30,2021,Iman Shumpert,1361438,142,Daniella Karagach,372048,220
+30,2021,Cody Rigsby,54956,16,Cheryl Burke,3290959,1555
+30,2021,Melanie C,1170104,165,Gleb Savchenko,1198770,402
+30,2021,Jimmie Allen,722102,110,Emma Slater,1611802,612
+30,2021,Olivia Jade,755136,82,Valentin Chmerkovskiy,2554220,1474
+30,2021,JoJo Siwa,4836759,186,Jenna Johnson,1648208,600
+30,2021,Christine Chiu,0,2072,Pasha Pashkov,70747,3
+30,2021,Kenya Moore,553778,96,Brandon Armstrong,57340,2
+30,2021,Amanda Kloots,984673,55,Alan Bersten,569157,242
+31,2022,Jason Lewis,299469,15,Peta Murgatroyd,2620056,835
+31,2022,Cheryl Ladd,764256,24,Louis van Amstel,111502,880
+31,2022,Selma Blair,2414891,54,Sasha Farber,1055934,436
+31,2022,Joseph Baena,418731,117,Daniella Karagach,501377,253
+31,2022,Trevor Donovan,575787,25,Emma Slater,1820886,554
+31,2022,Daniel Durant,700278,41,Britt Stewart,80909,53
+31,2022,Wayne Brady,983611,51,Witney Carson,2680078,1057
+31,2022,Sam Champion,192491,12,Cheryl Burke,3829334,1672
+31,2022,Jessie James Decker,669000,68,Alan Bersten,658434,265
+31,2022,Jordin Sparks,717789,109,Brandon Armstrong,92425,26
+31,2022,Heidi D'Amelio,1335108,317,Artem Chigvintsev,4073053,913
+31,2022,Charli D'Amelio,2330896,184,Mark Ballas,2702692,1832
+31,2022,Teresa Giudice,668671,85,Pasha Pashkov,104043,9
+31,2022,Vinny Guadagnino,361345,82,Koko Iwasaki,0,0
+31,2022,Shangela,336379,73,Gleb Savchenko,1350541,424
+31,2022,Gabby Windey,383604,66,Valentin Chmerkovskiy,2783273,1509
+32,2023,Jamie Lynn Spears,3423592,279,Alan Bersten,754667,283
+32,2023,Mira Sorvino,2380433,67,Gleb Savchenko,1498327,440
+32,2023,Barry Williams,1123277,30,Peta Murgatroyd,2946706,861
+32,2023,Alyson Hannigan,2228849,58,Sasha Farber,1448972,436
+32,2023,Xochitl Gomez,1479002,141,Valentin Chmerkovskiy,3121683,1556
+32,2023,Adrian Peterson,1115849,63,Britt Stewart,201532,75
+32,2023,Matt Walsh,1496290,577,Koko Iwasaki,0,1299
+32,2023,Tyson Beckford,416809,30,Jenna Johnson,2189868,655
+32,2023,Jason Mraz,1345123,117,Daniella Karagach,768419,305
+32,2023,Lele Pons,979353,120,Brandon Armstrong,149814,37
+32,2023,Harry Jowsey,87252,2,Rylee Arnold,18686,0
+32,2023,Mauricio Umansky,79157,31,Emma Slater,2172315,660
+32,2023,Charity Lawson,0,0,Artem Chigvintsev,4730500,964
+32,2023,Ariana Madix,1134525,244,Pasha Pashkov,141219,9
+33,2024,Tori Spelling,1135199,52,Pasha Pashkov,187220,10
+33,2024,Eric Roberts,246587,36,Britt Stewart,336140,95
+33,2024,Reginald VelJohnson,931266,67,Emma Slater,2502354,679
+33,2024,Chandler Kinney,408968,62,Brandon Armstrong,341013,120
+33,2024,Dwight Howard ,1797883,79,Daniella Karagach,1019535,365
+33,2024,Danny Amendola,1531397,73,Witney Carson,3260060,1109
+33,2024,Stephen Nedoroscik,1332032,305,Rylee Arnold,275077,127
+33,2024,Ilona Maher,2709146,184,Alan Bersten,1068358,309
+33,2024,Anna Delvey,79886,104,Ezra Sosa,22539,1
+33,2024,Brooks Nader,680762,68,Gleb Savchenko,1867128,480
+33,2024,Phaedra Parks,592503,71,Val Chmerkovskiy,409271,1334
+33,2024,Jenn Tran,503683,45,Sasha Farber,1833713,533
+33,2024,Joey Graziadei,960753,80,Jenna Johnson,2593116,725
+34,2025,Corey Feldman,2453269,196,Jenna Johnson,3036627,769
+34,2025,Danielle Fishel,1457994,65,Pasha Pashkov,331896,51
+34,2025,Elaine Hendrix,1357163,40,Alan Bersten (Rashad Jennings week 9),1974996,495
+34,2025,Baron Davis,377556,18,Britt Stewart,511111,155
+34,2025,Jordan Chiles,592414,63,Ezra Sosa (Apolo Anton Ohno week 9),196020,64
+34,2025,Andy Richter,944473,59,Emma Slater/Kaitlyn Bristowe (week 9),4659901,1454
+34,2025,Robert Irwin,549700,147,Witney Carson (Xoshitl Gomez week 9),0,0
+34,2025,Hilaria Baldwin,2527971,30,Gleb Savchenko,2142119,497
+34,2025,Lauren Jauregui,511434,52,Brandon Armstrong,449036,145
+34,2025,Scott Hoying,486278,66,Rylee Arnold,560029,192
+34,2025,Alix Earle,2959943,90,Val Chmerkovskiy (Joey Graziadei week 9),9941674,13226
+34,2025,Jen Affleck,77361,29,Jan Ravnik,77361,29
+34,2025,Whitney Leavitt,128544,33,Mark Ballas,4053961,1967
+34,2025,Dylan Efron,1402920,83,Daniella Karagach (Rumer Willis week 9),1496769,434

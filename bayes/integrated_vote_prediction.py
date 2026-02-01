@@ -135,17 +135,22 @@ def train_model(fame_data, wiki_data, season):
         'elimination_ranks': elimination_ranks
     }
 
-def predict_votes_for_round(model_result, alive_indices, vote_params=None):
+def predict_votes_for_round(model_result, alive_indices, vote_params=None, return_uncertainty=False):
     """
-    根据模型参数预测当前轮次选手的投票数
+    根据模型参数预测当前轮次选手的投票数（两阶段方法）
+    
+    阶段1：从特征估计mu（实力分数）- 已在train_model中完成
+    阶段2：将mu映射到投票数 - votes = a * exp(mu) + b
     
     参数:
     - model_result: train_model返回的模型结果
     - alive_indices: 当前轮次还存活的选手索引列表
     - vote_params: 投票数映射参数 (a, b)，如果为None则使用默认值
+    - return_uncertainty: 是否返回不确定性（方差和置信区间）
     
     返回:
-    - 预测的投票数数组（对应alive_indices的顺序）
+    - 如果return_uncertainty=False: 预测的投票数数组
+    - 如果return_uncertainty=True: 字典，包含'votes', 'votes_std', 'votes_ci_lower', 'votes_ci_upper'
     """
     if model_result is None:
         return None
@@ -163,7 +168,28 @@ def predict_votes_for_round(model_result, alive_indices, vote_params=None):
     votes_alive = a * np.exp(mu_alive) + b
     votes_alive = np.clip(votes_alive, 1, None)
     
-    return votes_alive
+    if not return_uncertainty:
+        return votes_alive
+    
+    # 计算不确定性（方差和置信区间）
+    # 方法1：基于mu的标准差估计投票数的标准差
+    # 假设mu的不确定性会传播到投票数
+    mu_std = np.std(mu_alive) if len(mu_alive) > 1 else 0.5
+    # 使用一阶泰勒展开估计方差：Var(votes) ≈ (a * exp(mu))^2 * Var(mu)
+    # 简化：使用相对标准差
+    votes_std = votes_alive * 0.1 * (1 + mu_std)
+    
+    # 计算95%置信区间（假设正态分布）
+    votes_ci_lower = votes_alive - 1.96 * votes_std
+    votes_ci_upper = votes_alive + 1.96 * votes_std
+    votes_ci_lower = np.clip(votes_ci_lower, 1, None)
+    
+    return {
+        'votes': votes_alive,
+        'votes_std': votes_std,
+        'votes_ci_lower': votes_ci_lower,
+        'votes_ci_upper': votes_ci_upper
+    }
 
 def load_season_data_from_c_data(season=1):
     """
@@ -224,7 +250,7 @@ def calculate_judge_score_percentage(season_data, week, alive_indices):
     
     return percentages
 
-def simulate_round_by_round_elimination(model_result, vote_params=None, season_data=None, current_week=1):
+def simulate_round_by_round_elimination(model_result, vote_params=None, season_data=None, current_week=1, return_round_details=False):
     """
     模拟逐轮淘汰过程（综艺场景还原）
     
@@ -242,9 +268,11 @@ def simulate_round_by_round_elimination(model_result, vote_params=None, season_d
     - vote_params: 投票数映射参数 (a, b)，如果为None则使用默认值
     - season_data: 季节数据DataFrame（包含评委分数）
     - current_week: 当前周数（从1开始）
+    - return_round_details: 是否返回每轮详细信息
     
     返回:
-    - 预测的淘汰顺序（列表）
+    - 如果return_round_details=False: 预测的淘汰顺序（列表）
+    - 如果return_round_details=True: 字典，包含'elim_order'和'round_details'
     """
     if model_result is None:
         return None
@@ -252,6 +280,7 @@ def simulate_round_by_round_elimination(model_result, vote_params=None, season_d
     n_players = model_result['n_players']
     alive_indices = list(range(n_players))
     predicted_elim_order = []
+    round_details = []  # 记录每轮详细信息
     week = current_week
     
     # 进行多次比赛，直到只剩一人
@@ -286,17 +315,35 @@ def simulate_round_by_round_elimination(model_result, vote_params=None, season_d
         # 记录淘汰顺序
         predicted_elim_order.append(eliminated_idx)
         
+        # 记录每轮详细信息
+        if return_round_details:
+            round_details.append({
+                'round': len(predicted_elim_order),
+                'week': week,
+                'eliminated_idx': eliminated_idx,
+                'alive_indices': alive_indices.copy(),
+                'judge_percentages': judge_percentages.copy(),
+                'vote_percentages': vote_percentages.copy(),
+                'combined_scores': combined_scores.copy()
+            })
+        
         # 从存活列表中移除被淘汰的选手
         alive_indices.remove(eliminated_idx)
         
         # 进入下一周
         week += 1
     
-    return predicted_elim_order
+    if return_round_details:
+        return {
+            'elim_order': predicted_elim_order,
+            'round_details': round_details
+        }
+    else:
+        return predicted_elim_order
 
 def evaluate_model_consistency(model_result, vote_params=None, season_data=None):
     """
-    评估模型的一致性：使用逐轮淘汰模拟，计算Kendall's tau
+    评估模型的一致性：使用逐轮淘汰模拟，计算Kendall's tau和每轮淘汰准确性
     
     参数:
     - model_result: train_model返回的模型结果
@@ -309,6 +356,9 @@ def evaluate_model_consistency(model_result, vote_params=None, season_data=None)
       - 'elimination_order_tau': Kendall's tau 一致性系数
       - 'elimination_order_p': p值
       - 'elimination_order_match': 是否完全匹配
+      - 'round_accuracy': 每轮淘汰准确性（列表）
+      - 'overall_round_accuracy': 总体每轮淘汰准确率
+      - 'round_details': 每轮详细信息
     """
     if model_result is None:
         return None
@@ -316,16 +366,55 @@ def evaluate_model_consistency(model_result, vote_params=None, season_data=None)
     n_players = model_result['n_players']
     elimination_order = model_result['elimination_order']
     
-    # 模拟逐轮淘汰过程
-    predicted_elim_order = simulate_round_by_round_elimination(model_result, vote_params, season_data, current_week=1)
+    # 模拟逐轮淘汰过程（获取详细信息）
+    sim_result = simulate_round_by_round_elimination(
+        model_result, vote_params, season_data, current_week=1, return_round_details=True
+    )
+    
+    if sim_result is None:
+        return {
+            'predicted_elim_order': None,
+            'elimination_order_tau': 0.0,
+            'elimination_order_p': 1.0,
+            'elimination_order_match': False,
+            'round_accuracy': [],
+            'overall_round_accuracy': 0.0,
+            'round_details': []
+        }
+    
+    predicted_elim_order = sim_result['elim_order']
+    round_details = sim_result['round_details']
     
     if predicted_elim_order is None or len(predicted_elim_order) != len(elimination_order):
         return {
             'predicted_elim_order': predicted_elim_order,
             'elimination_order_tau': 0.0,
             'elimination_order_p': 1.0,
-            'elimination_order_match': False
+            'elimination_order_match': False,
+            'round_accuracy': [],
+            'overall_round_accuracy': 0.0,
+            'round_details': round_details
         }
+    
+    # 计算每轮淘汰准确性
+    round_accuracy = []
+    correct_rounds = 0
+    
+    for round_num in range(len(predicted_elim_order)):
+        pred_eliminated = predicted_elim_order[round_num]
+        actual_eliminated = elimination_order[round_num]
+        is_correct = (pred_eliminated == actual_eliminated)
+        round_accuracy.append({
+            'round': round_num + 1,
+            'predicted_eliminated': pred_eliminated,
+            'actual_eliminated': actual_eliminated,
+            'is_correct': is_correct
+        })
+        if is_correct:
+            correct_rounds += 1
+    
+    # 计算总体每轮淘汰准确率
+    overall_round_accuracy = correct_rounds / len(predicted_elim_order) if len(predicted_elim_order) > 0 else 0.0
     
     # 计算排名
     pred_ranks = np.zeros(n_players)
@@ -352,7 +441,10 @@ def evaluate_model_consistency(model_result, vote_params=None, season_data=None)
         'predicted_elim_order': predicted_elim_order,
         'elimination_order_tau': tau,
         'elimination_order_p': p_value,
-        'elimination_order_match': (predicted_elim_order == elimination_order)
+        'elimination_order_match': (predicted_elim_order == elimination_order),
+        'round_accuracy': round_accuracy,
+        'overall_round_accuracy': overall_round_accuracy,
+        'round_details': round_details
     }
 
 def evaluate_season1_consistency():
@@ -461,16 +553,27 @@ def main():
             
             if eval_result and 'elimination_order_tau' in eval_result:
                 tau = eval_result['elimination_order_tau']
+                round_accuracy = eval_result.get('overall_round_accuracy', 0.0)
                 print(f"\nSeason {season} 一致性评估:")
                 print(f"  Kendall's tau: {tau:.4f}")
                 print(f"  p值: {eval_result.get('elimination_order_p', 0):.4f}")
                 print(f"  完全匹配: {eval_result.get('elimination_order_match', False)}")
+                print(f"  每轮淘汰准确率: {round_accuracy:.4f} ({eval_result.get('round_accuracy', [])})")
+                
+                # 显示每轮淘汰详情
+                round_accuracy_list = eval_result.get('round_accuracy', [])
+                if round_accuracy_list:
+                    print(f"  每轮淘汰详情:")
+                    for round_info in round_accuracy_list:
+                        status = "✓" if round_info['is_correct'] else "✗"
+                        print(f"    第{round_info['round']}轮: {status} 预测={round_info['predicted_eliminated']}, 实际={round_info['actual_eliminated']}")
                 
                 consistency_metrics.append({
                     'season': season,
                     'kendall_tau': tau,
                     'kendall_p': eval_result.get('elimination_order_p'),
-                    'elimination_match': eval_result.get('elimination_order_match', False)
+                    'elimination_match': eval_result.get('elimination_order_match', False),
+                    'round_accuracy': round_accuracy
                 })
             
             all_results.append(model_result)
@@ -489,6 +592,7 @@ def main():
         
         metrics_df = pd.DataFrame(consistency_metrics)
         tau_values = metrics_df['kendall_tau'].values
+        round_accuracy_values = metrics_df['round_accuracy'].values
         
         tau_mean = np.mean(tau_values)
         tau_std = np.std(tau_values)
@@ -499,6 +603,12 @@ def main():
         negative_tau_count = np.sum(tau_values < 0)
         perfect_match_count = metrics_df['elimination_match'].sum()
         
+        round_accuracy_mean = np.mean(round_accuracy_values)
+        round_accuracy_std = np.std(round_accuracy_values)
+        round_accuracy_median = np.median(round_accuracy_values)
+        round_accuracy_min = np.min(round_accuracy_values)
+        round_accuracy_max = np.max(round_accuracy_values)
+        
         print(f"\nKendall's tau (排序一致性):")
         print(f"  平均值: {tau_mean:.4f} ± {tau_std:.4f}")
         print(f"  中位数: {tau_median:.4f}")
@@ -506,6 +616,11 @@ def main():
         print(f"  正相关季节数: {positive_tau_count}/{len(tau_values)} ({100*positive_tau_count/len(tau_values):.1f}%)")
         print(f"  负相关季节数: {negative_tau_count}/{len(tau_values)} ({100*negative_tau_count/len(tau_values):.1f}%)")
         print(f"  完全匹配季节数: {perfect_match_count}/{len(tau_values)} ({100*perfect_match_count/len(tau_values):.1f}%)")
+        
+        print(f"\n每轮淘汰准确率:")
+        print(f"  平均值: {round_accuracy_mean:.4f} ± {round_accuracy_std:.4f}")
+        print(f"  中位数: {round_accuracy_median:.4f}")
+        print(f"  范围: [{round_accuracy_min:.4f}, {round_accuracy_max:.4f}]")
         
         # 保存结果
         metrics_df.to_csv('consistency_metrics_all_seasons.csv', index=False)
@@ -521,3 +636,6 @@ if __name__ == "__main__":
     
     # 或者只运行season1的一致性分析
     # evaluate_season1_consistency()
+    
+    # 或者运行确定性分析
+    # sensitivity_analysis(season=1, n_runs=10)
