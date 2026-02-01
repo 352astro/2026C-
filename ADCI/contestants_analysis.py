@@ -142,7 +142,7 @@ def calculate_kendall_tau_analysis(results_file: str, output_file: str):
 if __name__ == "__main__":
     # 分析数据并生成结果
     input_file = "elimination_results.csv"
-    output_file = "kendall_tau_analysis.csv"
+    output_file = "contestants_analysis.csv"
     
     result_df = calculate_kendall_tau_analysis(input_file, output_file)
     

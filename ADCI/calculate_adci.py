@@ -170,7 +170,7 @@ controversial_adci_df = pd.DataFrame(controversial_adci_results)
 
 # 计算当赛季其他比赛的ADCI（用于对比）
 print("\n正在计算当赛季其他比赛的ADCI...")
-all_seasons_adci_results = []
+adci_season_detail = []
 
 # 获取所有赛季
 all_seasons = fan_votes_df['season'].unique()
@@ -189,7 +189,7 @@ for season in all_seasons:
         
         if len(week_adci) > 0:
             for _, row in week_adci.iterrows():
-                all_seasons_adci_results.append({
+                adci_season_detail.append({
                     'season': season,
                     'index': row['index'],
                     'celebrity_name': row['celebrity_name'],
@@ -197,7 +197,7 @@ for season in all_seasons:
                     'ADCI': row['ADCI']
                 })
 
-all_seasons_adci_df = pd.DataFrame(all_seasons_adci_results)
+all_seasons_adci_df = pd.DataFrame(adci_season_detail)
 
 # 归一化ADCI到0-100范围
 print("\n正在归一化ADCI到0-100范围...")
@@ -219,7 +219,7 @@ print(f"归一化后ADCI范围: [{all_seasons_adci_df['ADCI'].min():.2f}, {all_s
 
 # 保存结果
 print("\n正在保存结果...")
-all_seasons_adci_df.to_csv('all_seasons_adci_results.csv', index=False, encoding='utf-8-sig')
+all_seasons_adci_df.to_csv('adci_season_detail.csv', index=False, encoding='utf-8-sig')
 
 # 生成对比分析
 print("\n生成对比分析...")
@@ -288,13 +288,13 @@ for season in sorted(all_seasons_adci_df['season'].unique()):
     })
 
 season_stats_df = pd.DataFrame(season_adci_stats)
-season_stats_df.to_csv('season_adci_statistics.csv', index=False, encoding='utf-8-sig')
+season_stats_df.to_csv('adci_season_statistics.csv', index=False, encoding='utf-8-sig')
 
 print("\n每个赛季的ADCI均值:")
 print(season_stats_df.round(2).to_string(index=False))
 
 print("\n\n结果已保存到:")
-print("  - all_seasons_adci_results.csv: 所有赛季的ADCI数据")
+print("  - adci_season_detail.csv: 所有赛季的ADCI数据")
 print("  - adci_comparison_analysis.csv: 对比分析结果")
-print("  - season_adci_statistics.csv: 每个赛季的ADCI均值统计")
+print("  - adci_season_statistics.csv: 每个赛季的ADCI均值统计")
 
