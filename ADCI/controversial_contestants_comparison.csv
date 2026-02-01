@@ -1,0 +1,5 @@
+﻿season,index,celebrity_name,描述,排名方式淘汰次序_规则1,实际排名_placement,实际淘汰次序_elimination_order,淘汰次序差异_实际减预测,参赛周数
+2,11,Jerry Rice,第2赛季 – Jerry Rice，尽管在5周内评委评分最低，仍获得亚军,4,2,9.0,5.0,8
+4,35,Billy Ray Cyrus,第4赛季 – Billy Ray Cyrus，尽管在6周内评委评分倒数第一，仍获得第5名,8,5,7.0,-1.0,8
+11,126,Bristol Palin,第11赛季 – Bristol Palin，曾12次获得最低评委评分，却获得第3名,3,3,10.0,7.0,10
+27,318,Bobby Bones,第27赛季 – Bobby Bones，尽管评委评分持续走低，仍获得冠军,4,1,13.0,9.0,9
