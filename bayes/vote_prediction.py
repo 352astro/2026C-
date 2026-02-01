@@ -11,18 +11,64 @@ from scipy.stats import kendalltau
 def pl_elimination_loss(votes, elimination_order):
     """
     Plackett-Luce模型的淘汰损失
-    votes: (n_players,) 投票数量
-    elimination_order: list, 淘汰顺序（索引列表）
+    
+    原理说明：
+    ---------
+    Plackett-Luce模型假设：在每一轮淘汰中，某个选手被淘汰的概率与其"实力"成反比。
+    实力用投票数表示：投票数越多，实力越强，被淘汰的概率越小。
+    
+    数学公式：
+    - 第i轮淘汰中，选手j被淘汰的概率 = exp(-mu_j) / sum(exp(-mu_k)) for all k in alive
+    - 其中 mu_j = log(votes_j)，表示选手j的实力（对数空间）
+    - 负对数似然 = -log(概率)，我们最小化这个值
+    
+    计算过程：
+    1. 将投票数转换为对数空间：mu = log(votes)
+    2. 逐轮计算每轮淘汰的概率
+    3. 累加所有轮次的负对数概率
+    
+    参数:
+    - votes: (n_players,) 投票数量数组
+    - elimination_order: list, 淘汰顺序（索引列表），例如[2,0,1]表示：先淘汰索引2，再淘汰索引0，最后淘汰索引1
+    
+    返回:
+    - loss: 负对数似然（越小越好）
+    
+    示例:
+    -----
+    假设有4个选手，投票数=[1000, 2000, 500, 3000]，淘汰顺序=[2, 0, 1]
+    第1轮：从[0,1,2,3]中淘汰2，概率 = exp(-log(500)) / sum(exp(-log(votes)))
+    第2轮：从[0,1,3]中淘汰0，概率 = exp(-log(1000)) / sum(exp(-log(votes)))
+    第3轮：从[1,3]中淘汰1，概率 = exp(-log(2000)) / sum(exp(-log(votes)))
+    损失 = -log(第1轮概率) - log(第2轮概率) - log(第3轮概率)
     """
-    mu = np.log(votes + 1e-10)
-    alive = list(range(len(votes)))
+    # 步骤1: 将投票数转换为对数空间（mu = log(votes)）
+    # 这样做的原因：Plackett-Luce模型在对数空间中计算更稳定
+    mu = np.log(votes + 1e-10)  # 1e-10防止log(0)
+    
+    # 步骤2: 初始化存活选手列表
+    alive = list(range(len(votes)))  # 开始时所有选手都存活
+    
+    # 步骤3: 初始化损失（负对数似然）
     loss = 0.0
     
+    # 步骤4: 逐轮计算淘汰概率并累加损失
     for eliminated in elimination_order:
+        # 4.1: 找到被淘汰选手在当前存活列表中的位置
         idx = alive.index(eliminated)
+        
+        # 4.2: 获取所有存活选手的实力（对数空间）
         mu_alive = mu[alive]
+        
+        # 4.3: 计算被淘汰选手的对数概率
+        # 公式：log(P(淘汰j)) = -mu_j - log(sum(exp(-mu_k))) for all k in alive
+        # 这里使用 logsumexp 是为了数值稳定性
         log_prob = -mu_alive[idx] - logsumexp(-mu_alive)
+        
+        # 4.4: 累加负对数概率（因为我们要最小化损失，所以用负号）
         loss -= log_prob
+        
+        # 4.5: 从存活列表中移除被淘汰的选手
         alive.remove(eliminated)
     
     return loss
@@ -75,16 +121,46 @@ def bayesian_vote_prediction(X, elimination_order, prior_mean=1000, prior_std=50
         'success': result.success
     }
 
-def mle_vote_prediction(elimination_order, votes_bounds=(100, 100000)):
+def mle_vote_prediction(elimination_order, X, feature_weights, 
+                        votes_bounds=(100, 100000), reg_lambda=0.01):
     """
-    最大似然估计投票数量
+    最大似然估计投票数量（使用特征优化）
+    
+    参数:
+    - elimination_order: 淘汰顺序（索引列表）
+    - X: 特征矩阵 (n_players, n_features)
+    - feature_weights: 特征权重向量 (n_features,)，用于从特征预测初始投票数
+    - votes_bounds: 投票数量的取值范围
+    - reg_lambda: 正则化系数，控制特征预测与MLE估计的平衡
+    
+    返回:
+    - 字典，包含预测的投票数、损失值、训练状态
     """
     n_players = len(elimination_order) + 1
     
-    def objective(votes):
-        return pl_elimination_loss(votes, elimination_order)
+    # 从特征预测初始投票数
+    mu_from_features = X @ feature_weights
     
-    votes0 = np.random.uniform(votes_bounds[0], votes_bounds[1], n_players)
+    # 将mu线性映射到投票数范围（不使用exp）
+    mu_min, mu_max = mu_from_features.min(), mu_from_features.max()
+    if mu_max > mu_min:
+        scale = (votes_bounds[1] - votes_bounds[0]) / (mu_max - mu_min)
+        offset = votes_bounds[0] - scale * mu_min
+    else:
+        scale = (votes_bounds[1] - votes_bounds[0]) / 2
+        offset = (votes_bounds[0] + votes_bounds[1]) / 2
+    
+    # 使用线性映射：votes = mu * scale + offset
+    votes_from_features = mu_from_features * scale + offset
+    votes0 = np.clip(votes_from_features, votes_bounds[0], votes_bounds[1])
+    
+    # 目标函数：MLE损失 + 特征正则化项
+    # 正则化项：让投票数接近从特征预测的投票数
+    def objective(votes):
+        mle_loss = pl_elimination_loss(votes, elimination_order)
+        reg_term = reg_lambda * np.sum((votes - votes_from_features) ** 2)
+        return mle_loss + reg_term
+    
     result = minimize(objective, votes0, method='L-BFGS-B',
                      bounds=[votes_bounds] * n_players, options={'maxiter': 2000})
     
@@ -341,12 +417,28 @@ def predict_votes_comprehensive(X, elimination_order, mu_from_model=None, method
     else:
         methods_to_run = [method]
     
+    # 如果提供了X和mu_from_model，计算feature_weights用于MLE
+    feature_weights = None
+    if X is not None and mu_from_model is not None:
+        # 通过线性回归从X和mu反推weights: mu = X @ w
+        # 使用最小二乘法求解 w = (X^T X)^(-1) X^T mu
+        try:
+            X_pinv = np.linalg.pinv(X)
+            feature_weights = X_pinv @ mu_from_model
+        except:
+            feature_weights = None
+    
     for m in methods_to_run:
         try:
             if m == 'bayesian':
                 results['bayesian'] = bayesian_vote_prediction(X, elimination_order)
             elif m == 'mle':
-                results['mle'] = mle_vote_prediction(elimination_order)
+                # MLE方法现在需要X和feature_weights
+                if X is not None and feature_weights is not None:
+                    results['mle'] = mle_vote_prediction(elimination_order, X, feature_weights)
+                else:
+                    print(f"方法 {m} 跳过: 需要X和mu_from_model来计算feature_weights")
+                    results[m] = {'error': '需要X和mu_from_model'}
             elif m == 'two_stage':
                 results['two_stage'] = two_stage_vote_prediction(X, elimination_order, mu_from_model)
             elif m == 'regression' and mu_from_model is not None:
