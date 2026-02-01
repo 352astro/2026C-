@@ -164,7 +164,7 @@ def calculate_metrics(merged_df, meta_df):
 
 def main():
     # 文件路径
-    pred_file = 'predicted_fan_votes_v.csv'
+    pred_file = 'predicted_fan_votes_v1.csv'
     actual_data_file = '2026_MCM_Problem_C_Data.csv'
 
     print("1. 加载预测数据...")
