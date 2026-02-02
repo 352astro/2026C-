@@ -91,14 +91,15 @@ def calculate_adci_for_week(season, week_num, fan_votes_data):
     min_judge_score = week_data['judge_avg_score'].min()
     
     # 计算a值：针对每个选手单独计算
-    # 如果该选手是评委得分最低的，且该选手未被淘汰，则a=1，否则a=0
+    # 如果该选手是评委得分最低的，且该选手未被淘汰（当前规则），则a=5，否则a=1
+    # 这样所有选手都有一个争议系数
     def calculate_a(row):
         # 判断该选手是否是评委得分最低的
         is_min_score = (row['judge_avg_score'] == min_judge_score)
         # 判断该选手是否未被淘汰
         is_not_eliminated = (row['index'] not in eliminated_this_week)
-        # 如果是最低分且未被淘汰，则a=1，否则a=0
-        return 1 if (is_min_score and is_not_eliminated) else 0
+        # 如果是最低分且未被淘汰，则a=5，否则a=1
+        return 5 if (is_min_score and is_not_eliminated) else 1
     
     week_data['a'] = week_data.apply(calculate_a, axis=1)
     week_data['x'] = week_data['controversy_base']
