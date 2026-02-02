@@ -6,12 +6,13 @@
 
 import pandas as pd
 import numpy as np
-from scipy.stats import kendalltau
+from scipy.stats import kendalltau, spearmanr
 
 
 def calculate_kendall_tau_analysis(results_file: str, output_file: str):
     """
     计算Kendall's tau一致性分析
+    同时计算Spearman相关性
     
     参数:
         results_file: 淘汰结果CSV文件路径
@@ -53,6 +54,25 @@ def calculate_kendall_tau_analysis(results_file: str, output_file: str):
         # 规则2 vs 规则4（百分比方式 vs 排名倒数两名评委决定）
         tau_rule2_vs_rule4, p_value_rule2_rule4 = kendalltau(order_rule2, order_rule4)
         
+        # 计算Spearman相关性
+        # 规则1 vs 规则3（排名方式 vs 粉丝投票）
+        spearman_rule1_vs_rule3, _ = spearmanr(order_rule1, order_rule3)
+        
+        # 规则2 vs 规则3（百分比方式 vs 粉丝投票）
+        spearman_rule2_vs_rule3, _ = spearmanr(order_rule2, order_rule3)
+        
+        # 规则4 vs 规则3（排名倒数两名评委决定 vs 粉丝投票）
+        spearman_rule4_vs_rule3, _ = spearmanr(order_rule4, order_rule3)
+        
+        # 规则1 vs 规则2（排名方式 vs 百分比方式）
+        spearman_rule1_vs_rule2, _ = spearmanr(order_rule1, order_rule2)
+        
+        # 规则1 vs 规则4（排名方式 vs 排名倒数两名评委决定）
+        spearman_rule1_vs_rule4, _ = spearmanr(order_rule1, order_rule4)
+        
+        # 规则2 vs 规则4（百分比方式 vs 排名倒数两名评委决定）
+        spearman_rule2_vs_rule4, _ = spearmanr(order_rule2, order_rule4)
+        
         # 判断哪个更倾向于粉丝投票（tau值越大，一致性越高）
         # 比较规则1、规则2、规则4与规则3的一致性
         tau_values = {
@@ -70,19 +90,19 @@ def calculate_kendall_tau_analysis(results_file: str, output_file: str):
             'season': season,
             # 规则1和其他：1-2, 1-3, 1-4
             'tau_1-2': float(f'{tau_rule1_vs_rule2:.5f}'),
-            'p_1-2': float(f'{p_value_rule1_rule2:.5f}'),
+            'spearman_1-2': float(f'{spearman_rule1_vs_rule2:.5f}'),
             'tau_1-3': float(f'{tau_rule1_vs_rule3:.5f}'),
-            'p_1-3': float(f'{p_value_rule1:.5f}'),
+            'spearman_1-3': float(f'{spearman_rule1_vs_rule3:.5f}'),
             'tau_1-4': float(f'{tau_rule1_vs_rule4:.5f}'),
-            'p_1-4': float(f'{p_value_rule1_rule4:.5f}'),
+            'spearman_1-4': float(f'{spearman_rule1_vs_rule4:.5f}'),
             # 规则2和剩余其他：2-3, 2-4
             'tau_2-3': float(f'{tau_rule2_vs_rule3:.5f}'),
-            'p_2-3': float(f'{p_value_rule2:.5f}'),
+            'spearman_2-3': float(f'{spearman_rule2_vs_rule3:.5f}'),
             'tau_2-4': float(f'{tau_rule2_vs_rule4:.5f}'),
-            'p_2-4': float(f'{p_value_rule2_rule4:.5f}'),
+            'spearman_2-4': float(f'{spearman_rule2_vs_rule4:.5f}'),
             # 规则3和其他：3-4 (即4-3，但用3-4表示)
             'tau_3-4': float(f'{tau_rule4_vs_rule3:.5f}'),
-            'p_3-4': float(f'{p_value_rule4:.5f}'),
+            'spearman_3-4': float(f'{spearman_rule4_vs_rule3:.5f}'),
             # 其他统计信息
             '更倾向粉丝': more_fan_oriented,
             'tau_diff_1-2': float(f'{tau_difference:.5f}'),
@@ -106,6 +126,13 @@ def calculate_kendall_tau_analysis(results_file: str, output_file: str):
     print(f"  规则1 vs 规则2 (排名相加 vs 百分比相加) 平均tau: {result_df['tau_1-2'].mean():.5f}")
     print(f"  规则1 vs 规则4 (排名相加 vs 倒数两名评委决定) 平均tau: {result_df['tau_1-4'].mean():.5f}")
     print(f"  规则2 vs 规则4 (百分比相加 vs 倒数两名评委决定) 平均tau: {result_df['tau_2-4'].mean():.5f}")
+    print(f"\nSpearman相关性统计:")
+    print(f"  规则1 vs 规则3 平均Spearman: {result_df['spearman_1-3'].mean():.5f}")
+    print(f"  规则2 vs 规则3 平均Spearman: {result_df['spearman_2-3'].mean():.5f}")
+    print(f"  规则4 vs 规则3 平均Spearman: {result_df['spearman_3-4'].mean():.5f}")
+    print(f"  规则1 vs 规则2 平均Spearman: {result_df['spearman_1-2'].mean():.5f}")
+    print(f"  规则1 vs 规则4 平均Spearman: {result_df['spearman_1-4'].mean():.5f}")
+    print(f"  规则2 vs 规则4 平均Spearman: {result_df['spearman_2-4'].mean():.5f}")
     print(f"\n更倾向于粉丝投票的规则统计:")
     rule_counts = result_df['更倾向粉丝'].value_counts()
     print(rule_counts)
