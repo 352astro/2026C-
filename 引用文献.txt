@@ -1,0 +1,22 @@
+人气公式文献：
+Ramirez, E. D., & Hagen, S. J. (2018). The quantitative measure and statistical distribution of fame. Plos one, 13(7), e0200196.
+随机森林文献：
+Breiman, L. (2001). Random forests. Machine Learning, 45(1), 5-32.
+异方差高斯回归文献：
+Goldberg, P. W., Williams, C. K., & Bishop, C. M. (1998). Regression with input-dependent noise: A Gaussian process treatment. Advances in Neural Information Processing Systems (NIPS), 10, 493-499.
+观众投票和选手人气关系的文献：
+O. Budzinski and J. Pannicke, “Does popularity matter in a TV song competition? Evidence from a national music contest,” Ilmenau Economics Discussion Papers, no. 106, 2017. [Online]. Available: https://hdl.handle.net/10419/168317
+观众投票和评委争议程度量化的文献：
+1. Berthet, V. (2024). Improving MMA judging with consensus scoring: A Statistical analysis of MMA bouts from 2003 to 2023. arXiv preprint arXiv:2401.03280.
+@misc{berthet2024improvingmmajudgingconsensus,
+      title={Improving MMA judging with consensus scoring: A Statistical analysis of MMA bouts from 2003 to 2023}, 
+      author={Vincent Berthet},
+      year={2024},
+      eprint={2401.03280},
+      archivePrefix={arXiv},
+      primaryClass={physics.soc-ph},
+      url={https://arxiv.org/abs/2401.03280}, 
+}
+
+
+2. Kadoić, N., Žajdela Hrustek, N. & Gligora Marković, M. Eurovision Song Contest: Can juries assess the quality of songs objectively?. Cent Eur J Oper Res 33, 859–890 (2025). https://doi.org/10.1007/s10100-025-00971-2
