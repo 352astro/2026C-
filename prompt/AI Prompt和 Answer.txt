@@ -1,0 +1,85 @@
+寻找争议指标的AIprompt
+Prompt:
+Provide some papers related to evaluating the controversy level of judges' and audience's scoring in variety shows.
+Answer:
+Here are **some relevant academic papers and studies** that relate to evaluating **controversy, bias, disagreement, or quality** in scoring systems — especially where *judges and audiences differ or where scoring reliability is examined*. Even though direct work on *variety shows judges vs audience scoring controversy* is limited, there are **related quantitative and qualitative research directions** that can inform your methodology:
+
+---
+
+## 📊 **1. Judging Bias and Score Controversy in Competitions**
+
+**Jeon & Park (2016)** – *Jury-Contestant Bipartite Competition Network*
+
+> Jeon, G., & Park, J. (2016). *Jury-Contestant Bipartite Competition Network: Identifying Biased Scores and Their Impact on Network Structure Inference*. arXiv.
+> This paper models judge scoring as a network and identifies biased scores, showing how even outliers notably impact overall structure inference — relevant to detecting controversial judge decisions. ([arXiv][1])
+
+**Berthet (2024)** – *Improving MMA judging with consensus scoring*
+
+> Berthet, V. (2024). *Improving MMA judging with consensus scoring: A statistical analysis of MMA bouts 2003–2023*. arXiv.
+> Statistically compares different judging aggregation methods and discusses alignment with fan perspectives, which parallels judge vs audience scoring controversies. ([arXiv][2])
+
+---
+
+## 🧠 **2. Scoring Reliability and Bias Assessment**
+
+**Luedeker & McGee (2022)** – Diving competition score study
+
+> Luedeker, B., & McGee, M. (2022). *Relationship between judges’ scores and dive attributes from a video recording of a diving competition*. *PLoS ONE*, 17(8):e0273374.
+> Analyzes the relationship between scoring and objective dive features, highlighting variability and potential quality discrepancies. ([PMC][3])
+
+**Frontiers in Psychology (2024)** – Judge scoring quality analysis
+
+> Cai, W., & Xiang, R. (2024). *Multifactor and multidimensional data quality analysis of judge scoring in diving competition*. *Frontiers in Psychology*.
+> Examines scoring consistency and quality across judges — useful for statistical reliability measures. ([Frontiers][4])
+
+**“Evaluating judge performance in sport”** – Rasch analysis of judges
+
+> *Evaluating judge performance in sport* (2004). Uses Rasch models to analyze judge scoring patterns and detect inconsistencies.
+> A classic approach to evaluate scoring reliability and bias quantitatively. ([PubMed][5])
+
+---
+
+## 📺 **3. Media & Audience Perspective on Scoring, Expertise, and Evaluation**
+
+**Evaluation and expertise: Discourse of reality TV competition scores**
+
+> *Evaluation and expertise: The discourse of reality television competition scores*. *Discourse, Context & Media* (2016).
+> Discusses the evaluative language in TV competition judging — relevant for qualitative understanding of controversy between expert judges and public perception. ([科学直通车][6])
+
+**Eurovision jury vs audience study**
+
+> *Eurovision Song Contest: Can juries assess quality objectively?* (2025). *Central European Journal of Operations Research*.
+> Explores alignment and discrepancy between expert juries and public votes in a televised competition context — directly relevant to audience vs expert scoring debates. ([Springer][7])
+
+---
+
+## 📌 **How These Can Help Your Research**
+
+These papers provide:
+
+* **Quantitative frameworks** to detect bias and controversial scores.
+* **Statistical modeling techniques** (e.g., network models, Rasch analysis).
+* **Comparative analysis** of expert vs public evaluations.
+* **Qualitative insights** into how audiences and judges evaluate performance differently.
+
+---
+
+## 📑 Suggested Citation Examples
+
+Here is how you might cite one of the papers in **APA** for your references:
+
+> Jeon, G., & Park, J. (2016). *Jury-Contestant Bipartite Competition Network: Identifying biased scores and their impact on network structure inference*. arXiv. [https://doi.org/10.48550/arXiv.1608.02326](https://doi.org/10.48550/arXiv.1608.02326) ([arXiv][1])
+
+> Dodevska, A., et al. (2025). *Eurovision Song Contest: Can juries assess the quality of songs objectively?* *Central European Journal of Operations Research*. (Note: use full journal DOI/link). ([Springer][7])
+
+---
+
+If you’d like, I can also **recommend specific methodologies from these papers** (e.g., network modeling, inter-rater reliability) for quantifying judge vs audience scoring controversy in variety shows.
+
+[1]: https://arxiv.org/abs/1608.02326?utm_source=chatgpt.com "Jury-Contestant Bipartite Competition Network: Identifying Biased Scores and Their Impact on Network Structure Inference"
+[2]: https://arxiv.org/abs/2401.03280?utm_source=chatgpt.com "Improving MMA judging with consensus scoring: A Statistical analysis of MMA bouts from 2003 to 2023"
+[3]: https://pmc.ncbi.nlm.nih.gov/articles/PMC9401130/?utm_source=chatgpt.com "Relationship between judges’ scores and dive attributes from a video recording of a diving competition - PMC"
+[4]: https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2024.1338405/full?utm_source=chatgpt.com "Frontiers | Multifactor and multidimensional data quality analysis of judge scoring in diving competition"
+[5]: https://pubmed.ncbi.nlm.nih.gov/14757990/?utm_source=chatgpt.com "Evaluating judge performance in sport - PubMed"
+[6]: https://www.sciencedirect.com/science/article/pii/S2211695816300319?utm_source=chatgpt.com "Evaluation and expertise: The discourse of reality television competition scores - ScienceDirect"
+[7]: https://link.springer.com/article/10.1007/s10100-025-00971-2?utm_source=chatgpt.com "Eurovision Song Contest: Can juries assess the quality of songs objectively? | Central European Journal of Operations Research | Springer Nature Link"
