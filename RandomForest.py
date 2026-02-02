@@ -147,10 +147,20 @@ importances = pd.DataFrame({
 
 plt.figure(figsize=(10, 8))
 plt.barh(importances['Feature'], importances['Importance'], xerr=importances['Std'])
-plt.xlabel("Permutation Importance (对模型预测误差的影响程度)")
-plt.ylabel("特征 (Features)")
-plt.title("各因素对评委评分总和(Score Sum)的影响分析")
+plt.xlabel("Permutation Importance")
+plt.ylabel("Features")
+plt.title("Analysis of Factors Influencing Total Judge Scores (Score Sum)")
 plt.tight_layout()
+
+output_filename = "feature_importance_score_sum.png"
+
+plt.savefig(
+    output_filename,
+    dpi=300,                # 高清，适合论文打印
+    bbox_inches='tight',    # 自动裁剪白边
+    format='png'
+)
+
 plt.show()
 
 # ==========================================
